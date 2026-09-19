@@ -1,0 +1,2893 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="自己肯定＆習慣" />
+  <title>自己肯定感向上＆習慣管理アプリ - 科学配当・完全修復版</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React 18 & ReactDOM -->
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel Standalone -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior-y: none;
+    }
+    input, select, textarea, button {
+      font-family: inherit;
+    }
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.5);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, useRef, Component } = React;
+
+    const STORAGE_KEY = 'SELF_ESTEEM_HABIT_APP_DATA_V3';
+    const CURRENT_SCHEMA_VERSION = 3;
+
+    // ==========================================
+    // 1. タスク特化：節目進化型＆日替わり「医学・生体変容うんちく」多層辞書
+    // ==========================================
+    const COMPREHENSIVE_KNOWLEDGE_BASE = [
+      {
+        keys: ['腕立て', '肩トレ', '肩', 'プッシュアップ', '胸', '上半身'],
+        category: '🦴 姿勢・筋骨格・脱力',
+        stages: [
+          {
+            stageName: 'Stage 1: 即時神経リセット期',
+            minCount: 0,
+            benefitTag: '🧬 自動ショルダードロップ＆僧帽筋弛緩',
+            dividendTitle: '「デスクワーク＆立ち姿の“自動ショルダードロップ（脱力美姿勢）”配当」',
+            dividendDesc: '大胸筋・三角筋・上腕三頭筋が稼働したことで相反抑制反射が働き、異常緊張していた僧帽筋が強制リセット。肩がスッと落ち、首が長く見えるシャープなシルエットと深い呼吸が自動起動しました。',
+            trivia: '【筋骨格・解剖学うんちく】デスクワークでPCを凝視していると肩甲挙筋が持続収縮して「肩すくみ姿勢」が固定化します。腕立て動作を行うと相反抑制（主動筋が収縮すると拮抗筋が自然に緩む神経反射）が働き、僧帽筋上部のこわばりが物理的に解除されます。'
+          },
+          {
+            stageName: 'Stage 2: 筋膜滑走＆循環再構築期',
+            minCount: 10,
+            benefitTag: '🧬 前鋸筋アンカー＆胸郭拡大呼吸',
+            dividendTitle: '「前鋸筋アンカー固定＆肺活量20%拡張配当」',
+            dividendDesc: '通算10回を突破したことで、肩甲骨を肋骨に密着させる「前鋸筋」の基礎トーンが確立。巻き肩が根本から開き、浅くなっていた肋間筋が広がって一呼吸あたりの酸素摂取量が飛躍しました。',
+            trivia: '【筋膜生体力学うんちく】10回以上の反復負荷により、肩甲骨裏側の前鋸筋と肋骨の間の結合組織（筋膜）の滑走性が改善。猫背特有の「肩甲骨の外方偏位（開きっぱなし）」が修正され、PC作業中も無意識に胸が自然に開く骨格アライメントへと定着が始まります。'
+          },
+          {
+            stageName: 'Stage 3: マイオカイン全身若返り期',
+            minCount: 30,
+            benefitTag: '🧬 BDNF増幅＆テストステロン・セロトニン共鳴',
+            dividendTitle: '「骨格筋マイオカイン＆脳神経新生ブースト配当」',
+            dividendDesc: '通算30回の金字塔！大筋群の収縮頻度が臨界点を超え、若返りホルモン「マイオカイン」が全身血管へ拍出。脳の海馬神経新生とブレないメンタル基盤が恒常化しました。',
+            trivia: '【運動内分泌学うんちく】筋肉は人体最大の内分泌器官です。継続的なプッシュ運動により骨格筋から抗炎症性マイオカイン（イリシン、SPARC等）が分泌され、内臓脂肪の褐色化を促すとともに、血液脳関門を通過して脳の神経栄養因子BDNFを増殖させることが解明されています。'
+          }
+        ],
+        dailyAngle: [
+          '【本日の視点】肩甲骨を寄せる意識で行うと、褐色脂肪細胞が集まる肩甲骨間が刺激され代謝熱が2倍になります。',
+          '【本日の視点】息を吐きながら押し上げることで腹圧が高まり、腰椎を保護しながら体幹インナーマッスルも同時起動します。',
+          '【本日の視点】手首をやや外八の字に置くと肘の回旋ストレスが減り、大胸筋下部への刺激効率が最大化します。'
+        ]
+      },
+      {
+        keys: ['スクワット', '下半身', '脚', '足'],
+        category: '🩸 血管・血液・代謝',
+        stages: [
+          {
+            stageName: 'Stage 1: 即時ミルキングポンプ期',
+            minCount: 0,
+            benefitTag: '🧬 GLUT4糖代謝＆静脈弁ポンプ',
+            dividendTitle: '「第2の心臓ミルキング＆インスリン非依存性血糖降下配当」',
+            dividendDesc: '全身の筋肉の7割が集中する下半身を稼働させたことで、ふくらはぎの静脈弁ポンプが血流を心臓へ強力に押し戻し、むくみを即時消滅。糖輸送体GLUT4が細胞膜へ浮上しました。',
+            trivia: '【内分泌・代謝生理学うんちく】下半身の大筋群を収縮させると、インスリンの分泌を待たずに筋細胞内のGLUT4（糖輸送体）が細胞表面に移動し、血中の余剰糖分を急速に筋グリコーゲンとして吸い上げます。食後や日中のスクワットは血糖スパイクを防ぐ最強の防壁です。'
+          },
+          {
+            stageName: 'Stage 2: 毛細血管密度拡張期',
+            minCount: 10,
+            benefitTag: '🧬 VEGF血管新生＆基礎体温底上げ',
+            dividendTitle: '「末梢毛細血管網拡張＆冷え性根絶配当」',
+            dividendDesc: '通算10回達成！大腿四頭筋・臀筋の毛細血管網が新生され、冷えやすい足先への血流量が恒常的にアップ。安静時の基礎代謝カロリーが自動で底上げされました。',
+            trivia: '【血管新生学うんちく】大筋群に反復して剪断応力をかけると、血管内皮増殖因子（VEGF）が放出され、休眠していた微小毛細血管が開通・新生します。これにより足先まで温かい動脈血が巡り、老廃物が素早く回収される「冷えない脚」へと構造変化します。'
+          },
+          {
+            stageName: 'Stage 3: 骨代謝オステオカルシン期',
+            minCount: 30,
+            benefitTag: '🧬 オステオカルシン放出＆記憶・若返りスイッチ',
+            dividendTitle: '「骨ホルモン・オステオカルシン＆全身アンチエイジング配当」',
+            dividendDesc: '通算30回突破！大腿骨にかかる重力刺激により骨ホルモン「オステオカルシン」が血中に放出。記憶力維持、テストステロン向上、肌弾力アップが全身で連鎖しました。',
+            trivia: '【骨代謝学うんちく】骨はカルシウムの塊ではなく活発なホルモン器官です。骨に垂直荷重がかかると骨芽細胞から「オステオカルシン」が分泌され、インスリン感受性を改善し、脳の記憶力を高めることが解明されています。'
+          }
+        ],
+        dailyAngle: [
+          '【本日の視点】膝をつま先と同じ方向に向けることで、関節のねじれを防ぎ大臀筋へダイレクトに効きます。',
+          '【本日の視点】お尻を後ろへ引くようにしゃがむと股関節の屈曲モーメントが高まり、ヒップアップ効果が倍増します。'
+        ]
+      },
+      {
+        keys: ['散歩', 'ウォーキング', '歩行', '歩く'],
+        category: '🧠 脳・認知・集中',
+        stages: [
+          {
+            stageName: 'Stage 1: 脳波シータ波＆セロトニン期',
+            minCount: 0,
+            benefitTag: '🧬 海馬BDNF増殖＆オプティックフロー',
+            dividendTitle: '「脳神経シナプス新生＆セロトニン・リズム同期配当」',
+            dividendDesc: '二足歩行のリズム刺激が縫線核を刺激しセロトニン分泌を加速。視界の景色が流れるオプティックフローにより、扁桃体の不安シグナルが即座に鎮静化しました。',
+            trivia: '【神経科学うんちく】一定リズムの歩行運動はセロトニン神経を同調発振させます。景色が自然に後ろへ流れる「視覚オプティックフロー」を感知すると、脳の不安中枢である扁桃体の過剰興奮が物理的に抑制されます。'
+          },
+          {
+            stageName: 'Stage 2: 前頭葉アハ体験＆発想力爆発期',
+            minCount: 10,
+            benefitTag: '🧬 拡散的思考モード＆ワーキングメモリ最適化',
+            dividendTitle: '「スタンフォード式発想力60%UP＆洞察スパーク配当」',
+            dividendDesc: '通算10回達成！座りっぱなしで滞っていた脳血流が前頭前野へ充満。アイデアの拡散的思考が点火し、停滞していた課題のブレイクスルーが自動誘発されます。',
+            trivia: '【認知神経科学うんちく】スタンフォード大学の研究では、座っている時と比較して歩行中は創造的発想スコアが平均60%向上することが実証されています。適度な運動負荷がデフォルトモードネットワークを心地よく整えます。'
+          },
+          {
+            stageName: 'Stage 3: 海馬容積拡大＆抗加齢期',
+            minCount: 30,
+            benefitTag: '🧬 記憶中枢・海馬容積維持＆テロメア防護',
+            dividendTitle: '「脳内メモリ物理拡張＆ストレス耐性マスター配当」',
+            dividendDesc: '通算30回突破！有酸素歩行の累積が海馬の毛細血管網を強固に保護。加齢による脳萎縮を食い止め、高い精神的レジリエンスが恒常化しました。',
+            trivia: '【脳機能解剖学うんちく】ピッツバーグ大学の研究では、歩行習慣を継続した群は記憶中枢である海馬の容積が年平均2%増加したことが報告されています。歩行は脳そのものを物理的に肥沃にする行為です。'
+          }
+        ],
+        dailyAngle: [
+          '【本日の視点】目線を20m先に向けると頭頚部の前傾が治り、脊柱起立筋の活動効率が最大になります。',
+          '【本日の視点】腕を後ろに引く意識で振ると広背筋が連動し、骨盤が自然に回旋して体幹が安定します。'
+        ]
+      },
+      {
+        keys: ['歯磨き', 'フロス', 'デンタル', '口腔', '歯'],
+        category: '🩸 血管・血液・代謝',
+        stages: [
+          {
+            stageName: 'Stage 1: バイオフィルム即時遮断期',
+            minCount: 0,
+            benefitTag: '🧬 バイオフィルム破壊＆内皮慢性炎症遮断',
+            dividendTitle: '「全身血管の無菌化＆認知機能防護配当」',
+            dividendDesc: '口腔内細菌が微小血管から血流へ侵入する菌血症リスクを物理的に遮断。動脈硬化予防、味覚受容器リセットによる血糖値急上昇の抑制が自動で起動しました。',
+            trivia: '【口腔医学うんちく】歯垢（プラーク）は単なる食べカスではなく、1mg中に約1億個の細菌が密集する「バイオフィルム」です。毛先の物理的せん断力だけがこれを破壊できます。'
+          },
+          {
+            stageName: 'Stage 2: 一酸化窒素（NO）産生環境防護期',
+            minCount: 10,
+            benefitTag: '🧬 舌苔清掃＆血圧コントロールNOサイクル',
+            dividendTitle: '「血管拡張NOサイクル正常化＆心血管リスク半減配当」',
+            dividendDesc: '通算10回達成！口腔内常在菌のバランスが適正化され、食事中の硝酸塩から血管拡張物質（NO）を生成する生体サイクルが正常作動。血圧安定化が促進されました。',
+            trivia: '【循環生理学うんちく】口腔内の善玉菌は、緑黄色野菜等に含まれる硝酸塩を一酸化窒素（NO）の前駆物質に変換する役割を持ちます。口腔の清潔は全身の血管柔軟性を守るNOサイクルを健全に保ちます。'
+          },
+          {
+            stageName: 'Stage 3: 脳関門防衛＆全身クリーン血流期',
+            minCount: 30,
+            benefitTag: '🧬 ジンジパイン脳内移行完全封殺＆認知症防護',
+            dividendTitle: '「脳血液関門ジンジパイン侵入ゼロ＆生涯健康寿命配当」',
+            dividendDesc: '通算30回の口腔マスター！歯周病菌P.g菌の毒素（ジンジパイン）が毛細血管を経由して脳内へ移行する経路を完全防衛。生涯にわたるクリアな思考力が約束されました。',
+            trivia: '【最先端神経病理学うんちく】アルツハイマー病患者の脳内からP.g菌の毒素ジンジパインが検出されることが判明しています。日々の口腔ケアは、脳の深部を慢性炎症から物理的に守り抜く防衛投資です。'
+          }
+        ],
+        dailyAngle: [
+          '【本日の視点】力を入れずペングリップで毛先を45度で当てると、歯肉溝の嫌気性菌を優しく掻き出せます。',
+          '【本日の視点】フロスを側面に沿わせてC字型に動かすと、ブラシの届かない隣接面プラークを90%除去できます。'
+        ]
+      },
+      {
+        keys: ['食器', '皿洗い', 'シンク', '洗い物'],
+        category: '🧠 脳・認知・集中',
+        stages: [
+          {
+            stageName: 'Stage 1: ワーキングメモリ即時解放期',
+            minCount: 0,
+            benefitTag: '🧬 ツァイガルニク遮断＆シリカスケール防止',
+            dividendTitle: '「視覚ノイズゼロ＆ワーキングメモリ全開放配当」',
+            dividendDesc: 'シンクの汚れと水滴をリセットしたことで、脳の無意識CPUを消費し続ける「未完了感（ツァイガルニク効果）」が即座に停止。思考の処理速度が復旧しました。',
+            trivia: '【界面化学・心理学うんちく】濡れたシンクを放置すると水道水中のカルシウムやシリカが蒸発濃縮され、石英並みの硬度を持つ「シリカスケール」に変貌します。直後に洗って拭く行為は未来の重労働を未然に消滅させます。'
+          },
+          {
+            stageName: 'Stage 2: 触覚マインドフルネス瞑想期',
+            minCount: 10,
+            benefitTag: '🧬 温水温覚フィードバック＆デフォルトモード鎮静',
+            dividendTitle: '「流れる温水フィードバック＆雑念アイドリング停止配当」',
+            dividendDesc: '通算10回達成！泡の感触と温水の温もりに五感を集中させることで、脳の空回り回路（DMN）が鎮静化。日常の家事が至高のマインドフルネス瞑想に昇華しました。',
+            trivia: '【マインドフルネス神経科学うんちく】フロリダ州立大学の研究では、温水の感触や香りに意識を集中して皿洗いを行った被験者は、神経過敏が27%減少し精神的明瞭さが25%向上したことが示されています。'
+          },
+          {
+            stageName: 'Stage 3: 空間秩序アンカー＆自己統制期',
+            minCount: 30,
+            benefitTag: '🧬 サンクチュアリ化＆内的コントロール感定着',
+            dividendTitle: '「キッチン・サンクチュアリ化＆自己効力感アンカー配当」',
+            dividendDesc: '通算30回突破！いつでも整ったシンクが生活空間の「秩序のアンカー」として機能。外の世界でどんな混乱があっても、自宅に戻れば自己コントロール感を取り戻せる聖域が完成しました。',
+            trivia: '【環境心理学うんちく】散らかった台所はストレスホルモンの基礎分泌を高めます。シンクが整っている状態は、脳に「自分の生活は自分でコントロールできている」という確固たる内的統制感を刷り込みます。'
+          }
+        ],
+        dailyAngle: [
+          '【本日の視点】油汚れの少ないグラスから先に洗うと、スポンジの油分移行を防ぎ洗剤の使用量を半減できます。',
+          '【本日の視点】最後にシンクをマイクロファイバークロスでサッとひと拭きするだけで、水垢の結晶化が永久に防止されます。'
+        ]
+      },
+      {
+        keys: ['水分', '水', '白湯', '補給'],
+        category: '🩸 血管・血液・代謝',
+        stages: [
+          {
+            stageName: 'Stage 1: 血液レオロジー適正化期',
+            minCount: 0,
+            benefitTag: '🧬 ヘマトクリット適正化＆胃結腸反射起動',
+            dividendTitle: '「血液粘度正常化・脳血流ブースト配当」',
+            dividendDesc: '水分を即補給し赤血球の濃縮凝集を防止。脳の認知機能低下（わずか1%の脱水で集中力は10%以上低下）を未然に遮断し、クリアな思考力を維持しました。',
+            trivia: '【循環生理学うんちく】人間は安静時でも不感蒸泄により1日約900mlの水分を失っています。こまめな水分補給はヘマトクリット値を正常化し、血管内皮にかかる摩擦ストレスを劇的に減らします。'
+          },
+          {
+            stageName: 'Stage 2: 腎臓糸球体濾過＆老廃物排出期',
+            minCount: 10,
+            benefitTag: '🧬 糸球体毛細血管保護＆尿酸・老廃物急速ウォッシュ',
+            dividendTitle: '「腎臓デトックス＆疲労毒素クリアリング配当」',
+            dividendDesc: '通算10回達成！腎臓の糸球体にかかる過剰圧力を緩和し、体内の老廃物のクリアランスが向上。慢性的な午後のだるさが消滅しました。',
+            trivia: '【腎生理学うんちく】腎臓は毎日ドラム缶1本分（約180L）の原尿を濾過しています。脱水傾向になると腎糸球体毛細血管の内圧が上昇して微細損傷を受けやすくなります。水分補給は腎臓の寿命を延ばす最高の内臓ケアです。'
+          },
+          {
+            stageName: 'Stage 3: 細胞内液・ミトコンドリア活性期',
+            minCount: 30,
+            benefitTag: '🧬 浸透圧ホメオスタシス＆ミトコンドリアATP生成ブースト',
+            dividendTitle: '「細胞内浸透圧最適化＆エネルギーATP全開配当」',
+            dividendDesc: '通算30回突破！細胞内外の電解質バランスが黄金比で安定。ミトコンドリアの生体膜電位が最適化され、持続的なエネルギー生産が確立しました。',
+            trivia: '【細胞生物学うんちく】ミトコンドリアが生命エネルギー（ATP）を合成する際、水素イオン濃度勾配と水分子の出入りが不可欠です。細胞が十分な水分で満たされるとATP合成酵素の回転効率が最大化します。'
+          }
+        ],
+        dailyAngle: [
+          '【本日の視点】起床直後はコップ1杯の常温水を飲むと、就寝中の脱水が解消され副交感神経から交感神経への移行が円滑になります。',
+          '【本日の視点】喉を潤すように一口ずつ味わって飲むと、抗利尿ホルモンの急変動を防ぎ体液に吸収されやすくなります。'
+        ]
+      }
+    ];
+
+    const DEFAULT_STAGES = [
+      {
+        stageName: 'Stage 1: 行動着手ドーパミン期',
+        minCount: 0,
+        benefitTag: '🧬 初動摩擦ゼロ＆側坐核ドーパミン点火',
+        dividendTitle: '「習慣ドーパミン＆自己統制力（内的統制）配当」',
+        dividendDesc: '行動の着手摩擦を克服したことで脳内の側坐核が点火。自分との約束を守り抜く「自己効力感（セルフ・エフィカシー）」が強固に蓄積されました。',
+        trivia: '【認知科学うんちく】人間の脳は「やり始める前」が最も強い抵抗を感じます。しかし小さな行動を開始して数分経つと、側坐核からドーパミンが分泌され自動的に作業が継続できるようになる「作業興奮」が起こります。'
+      },
+      {
+        stageName: 'Stage 2: 神経可塑性シナプス強化期',
+        minCount: 10,
+        benefitTag: '🧬 大脳基底核自動化ルーチン＆ウィルパワー保全',
+        dividendTitle: '「大脳基底核オートパイロット化配当」',
+        dividendDesc: '通算10回達成！行動を司る回路が大脳皮質から「大脳基底核」へ移行。意思決定の意志力（ウィルパワー）を消費せず、息をするようにこなせる自動化が進みました。',
+        trivia: '【行動神経科学うんちく】新しい行動を繰り返すと、前頭前野の重い情報処理から大脳基底核の自動実行ループへと配線が切り替わります。これにより決断疲れを起こさず重要タスクに集中力を温存できます。'
+      },
+      {
+        stageName: 'Stage 3: アイデンティティ統合期',
+        minCount: 30,
+        benefitTag: '🧬 セルフ・アイデンティティ確立＆揺るぎない自信',
+        dividendTitle: '「自己肯定アイデンティティ完全統合配当」',
+        dividendDesc: '通算30回突破！「やればできる」から「自分は物事を整え続けられる人間である」という強固な自己概念へ進化。外的環境に左右されない真の自己肯定感が完成しました。',
+        trivia: '【自己心理学うんちく】習慣の究極の到達点は「成果」ではなく「アイデンティティの変化」です。日々の反復回数こそが、「自分はこういう人間である」という脳内裁判に対する反論不能な証拠となります。'
+      }
+    ];
+
+    const DEFAULT_DAILY_ANGLES = [
+      '【本日の視点】小さな1回の積み重ねこそが、脳のシナプス可塑性を物理的に書き換える唯一の近道です。',
+      '【本日の視点】「完璧にやる」ことよりも「ゼロにしない」ことの方が、脳の習慣化回路の維持において10倍重要です。',
+      '【本日の視点】今日できたことを1つ認めるだけで、脳の報酬系が活性化し明日の行動エネルギーが予約されます。'
+    ];
+
+    // ==========================================
+    // 2. 日替わり「本日の生体サイエンス・インサイト」コラム（24:00自動更新）
+    // ==========================================
+    const DAILY_SCIENCE_INSIGHTS = [
+      {
+        title: '☀️ 朝の光と14時間後メラトニンの予約タイマー',
+        category: '時間生物学',
+        content: '朝起きてから2時間以内に光を浴びると、網膜のメラノプシン神経が反応して体内時計のマスターペースメーカー（視交叉上核）がリセットされます。この瞬間から約14〜16時間後に睡眠ホルモン「メラトニン」が分泌される体内タイマーが正確にカウントダウンを開始します。今朝のあなたの行動が、今夜の熟睡を物理的に創り出しています！'
+      },
+      {
+        title: '⚡ 側坐核の「5分ルール」と作業興奮の魔法',
+        category: '脳神経科学',
+        content: 'やる気が出ないのは意志が弱いからではなく脳の仕様です。意欲を司る「側坐核」は刺激（実際の行動）がないとドーパミンを出しません。しかし、たった1〜2分でも手を動かし始めると側坐核の神経細胞が発火し、勝手にやる気が湧いてくる「作業興奮」が起動します。「始めること」が仕事の8割と言われる生化学的根拠がここにあります。'
+      },
+      {
+        title: '🧠 視覚ノイズとワーキングメモリの密接な関係',
+        category: '環境心理学',
+        content: 'プリンストン大学の神経科学研究によると、散らかった机や未完了のタスクが視界に入っているだけで、脳の視覚野は無意識にそれを情報処理し続け、ワーキングメモリのリソースを常時浪費します。ゴミを1つ捨てる、シンクを拭くといった些細なリセットは、スマホの重いアプリを一括終了するのと同じ絶大な思考高速化をもたらします。'
+      },
+      {
+        title: '🩸 骨格筋は人体最大の「若返り内分泌器官」',
+        category: '運動生理学',
+        content: '近年の生化学で最も劇的な発見は、筋肉が単なる運動器官ではなく「ホルモン分泌器官」であるという事実です。筋肉が収縮すると「マイオカイン」と呼ばれる生理活性物質が分泌され、血管を通じて脳に届き、神経新生を促すBDNFを増やし、内臓脂肪の炎症を抑えます。腕立て数回、スクワット数回でも全身の細胞に若返りの号令が駆け巡ります。'
+      },
+      {
+        title: '🌱 腸内細菌叢とセロトニンの90%生成工場',
+        category: '精神神経免疫学',
+        content: '「幸せホルモン」と呼ばれるセロトニンの約90%は、実は脳ではなく「腸」で作られています。コップ1杯の水分補給や温かい飲み物で腸管の蠕動運動を促し、腸内環境を穏やかに保つことは、精神の安定とポジティブな自己肯定感を物理的に支える直結ルートです。お腹を大切にすることは心を大切にすることそのものです。'
+      }
+    ];
+
+    // 多層うんちく取得関数
+    const getHabitDividend = (habitName, totalCount = 0, dateStr = '') => {
+      const count = Math.max(0, Number(totalCount) || 0);
+      const safeName = (habitName || '').toLowerCase();
+
+      let targetItem = COMPREHENSIVE_KNOWLEDGE_BASE.find(item =>
+        item.keys.some(k => safeName.includes(k.toLowerCase()))
+      );
+
+      const stages = targetItem ? targetItem.stages : DEFAULT_STAGES;
+      const dailyAngles = targetItem ? targetItem.dailyAngle : DEFAULT_DAILY_ANGLES;
+      const category = targetItem ? targetItem.category : '🧠 脳・認知・集中';
+
+      let currentStageIndex = 0;
+      for (let i = stages.length - 1; i >= 0; i--) {
+        if (count >= stages[i].minCount) {
+          currentStageIndex = i;
+          break;
+        }
+      }
+
+      const activeStage = stages[currentStageIndex];
+      const nextStage = stages[currentStageIndex + 1] || null;
+
+      const dayNum = dateStr ? new Date(dateStr).getDate() : new Date().getDate();
+      const dailyPoint = dailyAngles[dayNum % dailyAngles.length];
+
+      return {
+        category,
+        stageIndex: currentStageIndex + 1,
+        totalStages: stages.length,
+        stageName: activeStage.stageName,
+        benefitTag: activeStage.benefitTag,
+        dividendTitle: activeStage.dividendTitle,
+        dividendDesc: activeStage.dividendDesc,
+        trivia: activeStage.trivia,
+        dailyPoint,
+        nextStage,
+        minCountToNext: nextStage ? nextStage.minCount - count : 0
+      };
+    };
+
+    // ==========================================
+    // 3. レベル称号・称賛・ご褒美提案
+    // ==========================================
+    const LEVEL_TITLES = [
+      { level: 1, title: 'はじまりの開拓者', minExp: 0, praise: '記念すべき最初の一歩！今日行動を起こしただけでもう満点です。', reward: '温かいお茶やコーヒーを一杯淹れて、ふぅっと深呼吸する☕' },
+      { level: 2, title: '日常の歩行者', minExp: 60, praise: '毎日の積み重ねが形になり始めました！誰にも見られない努力が確実に輝いています。', reward: 'ちょっとリッチなスイーツやアイスを罪悪感ゼロで楽しむ🍨' },
+      { level: 3, title: '小さな習慣の守護者', minExp: 150, praise: '継続の力が自信になっています。自分との約束を守るあなたは格好いい！', reward: 'お気に入りの入浴剤を入れて、長風呂で自分をとことん癒やす🛀' },
+      { level: 4, title: '生活リズムの調律者', minExp: 280, praise: '生活のベースが美しく整ってきました。未来の自分への最高の投資です。', reward: '「今日はもう何もしない！」と決めて、ベッドで好きなだけダラダラする😴' },
+      { level: 5, title: '自己肯定の達人', minExp: 450, praise: '圧倒的な自己肯定オーラ！些細なことも偉大な一歩として認めるマインドは無敵です。', reward: 'ずっと気になっていた本や漫画を1冊ポチる、または好きな映画を観る🎬' },
+      { level: 6, title: '整えし生活の賢者', minExp: 700, praise: '生活の乱れを自ら立て直す知恵が定着。自分をここまで育てた自分を熱烈に誇ってください！', reward: '今夜の晩ごはんは好きなものをデリバリーして贅沢する🍕' },
+      { level: 7, title: '自己愛の巨匠', minExp: 1050, praise: '1000EXP突破！自分を大切にし愛することの真の達人です。', reward: '欲しかったちょっと良い日用品や雑貨を自分にプレゼントする🎁' },
+      { level: 8, title: '日々の錬金術師', minExp: 1500, praise: '日常のすべてを黄金の経験値に変える錬金術師。継続力はもはや芸術です！', reward: '週末に好きなカフェや温泉、景色の良い場所へ行く🏞️' },
+      { level: 9, title: '生きてるだけで満点王', minExp: 2100, praise: '息をしているだけで奇跡、生きているだけで拍手喝采！圧倒的リスペクト！', reward: '最高の休息日を1日作り、好きなことだけをして過ごす🌟' },
+      { level: 10, title: '全肯定の絶対神', minExp: 3000, praise: '至高の領域へ到達！あなたという存在そのものが世界の宝です！', reward: '自分史上最高のご褒美を自分自身に贈呈してください👑' }
+    ];
+
+    const MOTIVATIONAL_QUOTES = [
+      '今日も生きてベッドから起き上がっただけで、もうすでに100点満点の大ファインプレーです！',
+      '世界中の誰が褒めてくれなくても、あなたが今日こなした小さな一歩をこのアプリとあなたの身体は1ミリも見逃しません。',
+      '偉大な成功ではなく、歯を磨いたこと、水を飲んだことこそがあなたの命と未来の時間を今日救っています。胸を張ってください！',
+      '疲れたら休んでいい。止まってもいい。今日あなたがここにいること自体が奇跡の積み重ねです。',
+      '「当たり前」の日常をこなすのが一番難しい。それを今日もやり遂げているあなたは本物のヒーローです。',
+      '腕立て1回、ゴミ拾い1つ。その些細な行動の裏で、数億個の細胞があなたのために若返りのシグナルを放っています。'
+    ];
+
+    const REWARD_IDEAS = [
+      { text: 'ちょっとリッチなスイーツや高級アイスを罪悪感ゼロで食べる🍨', emoji: '🍦' },
+      { text: 'お気に入りの香りの入浴剤を入れて、スマホを見ずに長風呂する🛀', emoji: '🛁' },
+      { text: '「今日はもう頑張らない」と声に出して宣言し、全力でゴロゴロする🛌', emoji: '😴' },
+      { text: 'ずっと読みたかった漫画・書籍を1冊ポチる📚', emoji: '📖' },
+      { text: '好きな映画やアニメを一気見してのんびり浸る🎬', emoji: '🍿' },
+      { text: 'いつもよりちょっと良い珈琲や紅茶を丁寧に淹れて味わう☕', emoji: '☕' },
+      { text: 'お気に入りの音楽をイヤホンでじっくり聴いて世界に浸る🎧', emoji: '🎵' },
+      { text: '「私は本当に偉い、よくやってる」と声に出して自分をハグする🫂', emoji: '💖' },
+      { text: '今夜の晩ごはんは好きなものをデリバリーやテイクアウトする🍕', emoji: '🍕' }
+    ];
+
+    const DAILY_QUEST_POOL = [
+      { id: 'q1', text: '空を見上げてゆっくり深呼吸を3回する', bonusExp: 30, emoji: '🌤️' },
+      { id: 'q2', text: '脱いだ靴のつま先を外に向けてピシッと揃える', bonusExp: 30, emoji: '👟' },
+      { id: 'q3', text: '鏡を見て「今日も生きててえらい！」と心の中でつぶやく', bonusExp: 35, emoji: '🪞' },
+      { id: 'q4', text: '肩甲骨を大きく後ろへ5回まわして姿勢をリセットする', bonusExp: 25, emoji: '🧘' },
+      { id: 'q5', text: '床や机の上のゴミを1つ拾ってゴミ箱へシュートする', bonusExp: 25, emoji: '🗑️' },
+      { id: 'q6', text: '冷たい水で手や顔を洗い、感覚をフレッシュに覚ます', bonusExp: 25, emoji: '💦' }
+    ];
+
+    const RULE_SUGGESTIONS = [
+      {
+        id: 'sug-1',
+        triggerExp: 60,
+        title: '新ルール提案：就寝前スマホ断ち',
+        description: '夜の良質な睡眠と翌朝の自己肯定感を劇的に底上げする伝説のルーティンです。',
+        habit: {
+          name: '就寝30分前のスマホOFF',
+          emoji: '📵',
+          exp: 20,
+          bonusText: '読書や瞑想に充てた',
+          bonusExp: 10,
+          linkUrl: ''
+        }
+      },
+      {
+        id: 'sug-2',
+        triggerExp: 150,
+        title: '新ルール提案：腕立て＆肩トレ（脱力美姿勢）',
+        description: 'デスクワークの肩こりを根本から解消し、シャープなシルエットを作る必須アクション。',
+        habit: {
+          name: '腕立て＆肩トレ（20回）',
+          emoji: '💪',
+          exp: 20,
+          bonusText: '肩甲骨を意識して完走',
+          bonusExp: 10,
+          linkUrl: ''
+        }
+      },
+      {
+        id: 'sug-3',
+        triggerExp: 300,
+        title: '新ルール提案：起床直後のコップ1杯白湯',
+        description: '内臓を目覚めさせ、胃結腸反射で腸内リズムを整える爽快なスタートアクションです。',
+        habit: {
+          name: '起床直後の白湯・常温水補給',
+          emoji: '☕',
+          exp: 10,
+          bonusText: 'ゆっくり座って飲んだ',
+          bonusExp: 5,
+          linkUrl: ''
+        }
+      }
+    ];
+
+    const INITIAL_HABITS = [
+      { id: 'h-1', name: '歯磨き', emoji: '🦷', exp: 10, bonusText: '食後すぐ磨いた', bonusExp: 5, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 14, lastUpdated: '' },
+      { id: 'h-2', name: '水分補給（コップ1杯）', emoji: '💧', exp: 5, bonusText: '常温水・白湯', bonusExp: 3, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 42, lastUpdated: '' },
+      { id: 'h-3', name: '食器洗い・シンク磨き', emoji: '🍽️', exp: 15, bonusText: '水滴まで拭きあげた', bonusExp: 10, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 8, lastUpdated: '' },
+      { id: 'h-4', name: '洗濯（回す/干す/畳む）', emoji: '👕', exp: 15, bonusText: '取り込んですぐ畳んだ', bonusExp: 10, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 12, lastUpdated: '' },
+      { id: 'h-5', name: 'トイレ掃除（ひと拭き）', emoji: '🚽', exp: 15, bonusText: '床まで綺麗にした', bonusExp: 10, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 5, lastUpdated: '' },
+      { id: 'h-6', name: 'シャワー・入浴', emoji: '🛁', exp: 20, bonusText: '湯船にしっかり浸かった', bonusExp: 15, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 19, lastUpdated: '' },
+      { id: 'h-7', name: 'ゴミまとめ・ゴミ出し', emoji: '🗑️', exp: 15, bonusText: '新しい袋を即セット', bonusExp: 5, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 9, lastUpdated: '' },
+      { id: 'h-8', name: 'スキンケア・保湿', emoji: '🧴', exp: 10, bonusText: '念入りハンドプレス', bonusExp: 5, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 22, lastUpdated: '' },
+      { id: 'h-9', name: '部屋の換気', emoji: '🪟', exp: 10, bonusText: '2箇所以上を開けて通気', bonusExp: 5, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 16, lastUpdated: '' }
+    ];
+
+    const INITIAL_MAINTENANCE = [
+      { id: 'm-1', name: 'お風呂・キッチンの排水口掃除', emoji: '✨', type: 'cycle', cycleDays: 14, lastDoneDate: new Date(Date.now() - 12 * 86400000).toISOString().split('T')[0], exp: 30, totalCount: 3, completed: false },
+      { id: 'm-2', name: 'シーツ・枕カバーの洗濯', emoji: '🛏️', type: 'cycle', cycleDays: 7, lastDoneDate: new Date(Date.now() - 6 * 86400000).toISOString().split('T')[0], exp: 25, totalCount: 6, completed: false },
+      { id: 'm-3', name: '月初の消耗品＆ストック棚卸し', emoji: '📦', type: 'monthly', fixedDay: 1, lastDoneDate: new Date(Date.now() - 25 * 86400000).toISOString().split('T')[0], exp: 40, totalCount: 2, completed: false },
+      { id: 'm-4', name: '粗大ゴミの収集WEB申込', emoji: '📦', type: 'single', dueDate: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0], completed: false, exp: 50, totalCount: 0 }
+    ];
+
+    const ADHOC_TEMPLATES = [
+      {
+        category: '知的生産・仕事',
+        items: [
+          { name: '朝活タイム完走', emoji: '🌅', exp: 25 },
+          { name: 'ポモドーロ1コマ集中', emoji: '⏱️', exp: 15 },
+          { name: 'Inbox Zero（未読ゼロ化）', emoji: '📥', exp: 20 },
+          { name: '思考のブレインダンプメモ', emoji: '📝', exp: 15 },
+          { name: '気乗りしない難題に着手', emoji: '🔥', exp: 30 }
+        ]
+      },
+      {
+        category: '育児・生活基盤',
+        items: [
+          { name: '授乳・ミルク作り＆片付け', emoji: '🍼', exp: 20 },
+          { name: 'おむつ替え＆ゴミ処理', emoji: '👶', exp: 15 },
+          { name: '寝かしつけ完了', emoji: '🌙', exp: 30 },
+          { name: '消耗品（ティッシュ等）の補充', emoji: '🧻', exp: 10 },
+          { name: '散らばったおもちゃの片付け', emoji: '🧸', exp: 15 }
+        ]
+      },
+      {
+        category: 'セルフケア・肉体',
+        items: [
+          { name: '高精度デンタルフロス', emoji: '🧵', exp: 15 },
+          { name: '腕立て＆肩トレ20回', emoji: '💪', exp: 20 },
+          { name: 'スクワット30回', emoji: '🦵', exp: 20 },
+          { name: '10分間の日光浴＆深呼吸', emoji: '☀️', exp: 15 },
+          { name: '1時間のデジタルデトックス', emoji: '📵', exp: 25 }
+        ]
+      }
+    ];
+
+    const INITIAL_SAVED_REPORTS = [
+      {
+        date: '2026-09-17',
+        totalExpEarned: 135,
+        completedCount: 9,
+        reportText: `🌟 【自己肯定感＆実生活配当 確定報告書】 🌟\n📅 日付: 2026-09-17\n👑 現在の称号: Lv.2「日常の歩行者」 (獲得 135 EXP - 歴代1位記録)\n🌙 24:00自動確定システム記録済\n────────────────────────────\n\n🔥 【本日積み上げた偉業（計 9 回）】\n・🦷 歯磨き × 3回（通算: 14回）\n  └ ⚡ 条件ボーナス達成: 「食後すぐ磨いた」 × 2回！\n・💧 水分補給（コップ1杯） × 4回（通算: 42回）\n・🍽️ 食器洗い・シンク磨き × 1回（通算: 8回）\n・🚽 トイレ掃除（ひと拭き） × 1回（通算: 5回）\n\n🧬 【本日確定した具体的な実生活・身体配当】\n◆ 🦷 歯磨き：「全身血管の無菌化＆認知機能防護配当」\n  口腔内細菌が血管に侵入する菌血症リスクを物理的に遮断。動脈硬化予防、認知症リスク低減が自動で起動しました。\n  💡 科学うんちく: 歯垢（プラーク）は1mg中に約1億個の細菌が密集する「バイオフィルム」です。毛先による物理的ブラッシングだけが唯一これを破壊できます。\n\n◆ 🍽️ 食器洗い：「視覚ノイズゼロ＆ツァイガルニク効果遮断配当」\n  未完了感（ツァイガルニク効果）が即座に停止し、脳内ワーキングメモリが全開放されました。\n\n────────────────────────────\n【全肯定メッセージ】\n世界は目立つ成果を求めがちですが、本当に生活を支え未来の健康を守っているのは、今日あなたがこなした地道な1回1回です。誰が見ていなくても身体とこのアプリはすべて記憶しています。今夜は胸を張ってゆっくり休んでください✨`
+      },
+      {
+        date: '2026-09-16',
+        totalExpEarned: 105,
+        completedCount: 7,
+        reportText: `🌟 【自己肯定感＆実生活配当 確定報告書】 🌟\n📅 日付: 2026-09-16\n👑 現在の称号: Lv.2「日常の歩行者」 (獲得 105 EXP - 歴代2位記録)\n🌙 24:00自動確定システム記録済\n────────────────────────────\n\n🔥 【本日積み上げた偉業（計 7 回）】\n・💧 水分補給 × 3回\n・👕 洗濯（回す/干す/畳む） × 1回\n・🛁 シャワー・入浴 × 1回\n・🪟 部屋の換気 × 2回\n\n🧬 【本日確定した具体的な実生活・身体配当】\n◆ 🪟 部屋の換気：「脳内二酸化炭素排出・思考明瞭化配当」\n  閉め切った部屋のCO2濃度を即座に正常化し、前頭葉の判断スピードを復旧しました。\n\n────────────────────────────\n【全肯定メッセージ】\n自分を大切にし、心地よい空間を維持した素晴らしい1日でした！明日もあなたのペースで進みましょう。`
+      },
+      {
+        date: '2026-09-15',
+        totalExpEarned: 75,
+        completedCount: 5,
+        reportText: `🌟 【自己肯定感＆実生活配当 確定報告書】 🌟\n📅 日付: 2026-09-15\n👑 現在の称号: Lv.1「はじまりの開拓者」 (獲得 75 EXP - 歴代3位記録)\n🌙 24:00自動確定システム記録済\n────────────────────────────\n\n🔥 【本日積み上げた偉業（計 5 回）】\n・🦷 歯磨き × 2回\n・💧 水分補給 × 2回\n・🗑️ ゴミまとめ・ゴミ出し × 1回\n\n────────────────────────────\n【全肯定メッセージ】\n記念すべきスタートの一歩！今日行動を起こしたこと自体が百点満点の大勝利です。`
+      }
+    ];
+
+    const getTodayString = () => new Date().toISOString().split('T')[0];
+
+    // サニタイザー関数群
+    const sanitizeHabits = (rawHabits) => {
+      if (!Array.isArray(rawHabits) || rawHabits.length === 0) return INITIAL_HABITS;
+      return rawHabits.map((h, idx) => {
+        if (!h || typeof h !== 'object') return INITIAL_HABITS[idx % INITIAL_HABITS.length];
+        return {
+          id: String(h.id || 'h-' + Date.now() + '-' + idx),
+          name: String(h.name || '習慣タスク'),
+          emoji: String(h.emoji || '✨'),
+          exp: Number(h.exp) || 10,
+          bonusText: String(h.bonusText || '条件達成'),
+          bonusExp: Number(h.bonusExp) || 5,
+          linkUrl: typeof h.linkUrl === 'string' ? h.linkUrl : '',
+          countToday: Math.max(0, Number(h.countToday) || 0),
+          bonusToday: Math.max(0, Number(h.bonusToday) || 0),
+          totalCount: Math.max(0, Number(h.totalCount) || 0),
+          lastUpdated: String(h.lastUpdated || '')
+        };
+      });
+    };
+
+    const sanitizeMaintenance = (rawMaint) => {
+      if (!Array.isArray(rawMaint) || rawMaint.length === 0) return INITIAL_MAINTENANCE;
+      return rawMaint.map((m, idx) => {
+        if (!m || typeof m !== 'object') return INITIAL_MAINTENANCE[idx % INITIAL_MAINTENANCE.length];
+        return {
+          id: String(m.id || 'm-' + Date.now() + '-' + idx),
+          name: String(m.name || '定期メンテナンス'),
+          emoji: String(m.emoji || '🧹'),
+          type: (m.type === 'monthly' || m.type === 'single') ? m.type : 'cycle',
+          cycleDays: Number(m.cycleDays) || 14,
+          fixedDay: Math.min(31, Math.max(1, Number(m.fixedDay) || 1)),
+          dueDate: typeof m.dueDate === 'string' ? m.dueDate : getTodayString(),
+          lastDoneDate: typeof m.lastDoneDate === 'string' ? m.lastDoneDate : getTodayString(),
+          exp: Number(m.exp) || 30,
+          totalCount: Math.max(0, Number(m.totalCount) || 0),
+          completed: Boolean(m.completed)
+        };
+      });
+    };
+
+    const sanitizeProfile = (rawProf) => {
+      if (!rawProf || typeof rawProf !== 'object') {
+        return {
+          userName: '自分マスター',
+          personalTheme: '首肩こり根絶＆美姿勢・自律神経の調律',
+          targetReward: 'お気に入りの入浴剤で極上リラクゼーション'
+        };
+      }
+      return {
+        userName: String(rawProf.userName || '自分マスター'),
+        personalTheme: String(rawProf.personalTheme || '首肩こり根絶＆美姿勢・自律神経の調律'),
+        targetReward: String(rawProf.targetReward || 'お気に入りの入浴剤で極上リラクゼーション')
+      };
+    };
+
+    const sanitizeSavedReports = (rawReports) => {
+      if (!Array.isArray(rawReports) || rawReports.length === 0) return INITIAL_SAVED_REPORTS;
+      return rawReports.map((r, idx) => ({
+        date: String(r.date || getTodayString()),
+        totalExpEarned: Number(r.totalExpEarned) || 0,
+        completedCount: Number(r.completedCount) || 0,
+        reportText: String(r.reportText || '')
+      }));
+    };
+
+    const sanitizeAppState = (data) => {
+      if (!data || typeof data !== 'object') {
+        return {
+          schemaVersion: CURRENT_SCHEMA_VERSION,
+          totalExp: 140,
+          habits: INITIAL_HABITS,
+          maintenance: INITIAL_MAINTENANCE,
+          adhocLogs: [],
+          completedQuests: [],
+          adoptedSuggestions: [],
+          savedReports: INITIAL_SAVED_REPORTS,
+          profile: sanitizeProfile(null),
+          lastActiveDate: getTodayString()
+        };
+      }
+      return {
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        totalExp: Math.max(0, Number(data.totalExp) || 0),
+        habits: sanitizeHabits(data.habits),
+        maintenance: sanitizeMaintenance(data.maintenance),
+        adhocLogs: Array.isArray(data.adhocLogs) ? data.adhocLogs : [],
+        completedQuests: Array.isArray(data.completedQuests) ? data.completedQuests : [],
+        adoptedSuggestions: Array.isArray(data.adoptedSuggestions) ? data.adoptedSuggestions : [],
+        savedReports: sanitizeSavedReports(data.savedReports),
+        profile: sanitizeProfile(data.profile),
+        lastActiveDate: typeof data.lastActiveDate === 'string' ? data.lastActiveDate : getTodayString()
+      };
+    };
+
+    const getRemainingDays = (task) => {
+      if (!task || typeof task !== 'object') return 9990;
+      if (task.type === 'single' && task.completed) return 99999;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (task.type === 'single') {
+        if (!task.dueDate) return 9990;
+        const due = new Date(task.dueDate);
+        due.setHours(0, 0, 0, 0);
+        return Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      }
+
+      if (task.type === 'cycle') {
+        if (!task.lastDoneDate) return -(task.cycleDays || 14);
+        const last = new Date(task.lastDoneDate);
+        last.setHours(0, 0, 0, 0);
+        const cycleDays = Number(task.cycleDays) || 14;
+        const dueTime = last.getTime() + cycleDays * 86400000;
+        return Math.round((dueTime - today.getTime()) / (1000 * 60 * 60 * 24));
+      }
+
+      if (task.type === 'monthly') {
+        const cYear = today.getFullYear();
+        const cMonth = today.getMonth();
+        const cDay = today.getDate();
+        const fDay = Math.min(31, Math.max(1, Number(task.fixedDay) || 1));
+        let target = new Date(cYear, cMonth, fDay);
+        target.setHours(0, 0, 0, 0);
+
+        if (cDay > fDay) {
+          if (task.lastDoneDate) {
+            const last = new Date(task.lastDoneDate);
+            if (last.getFullYear() === cYear && last.getMonth() === cMonth) {
+              target = new Date(cYear, cMonth + 1, fDay);
+            }
+          }
+        } else if (task.lastDoneDate) {
+          const last = new Date(task.lastDoneDate);
+          if (last.getFullYear() === cYear && last.getMonth() === cMonth) {
+            target = new Date(cYear, cMonth + 1, fDay);
+          }
+        }
+        return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      }
+      return 9990;
+    };
+
+    const getLevelObj = (exp) => {
+      const numericExp = Number(exp) || 0;
+      let cur = LEVEL_TITLES[0];
+      for (let i = 0; i < LEVEL_TITLES.length; i++) {
+        if (numericExp >= LEVEL_TITLES[i].minExp) cur = LEVEL_TITLES[i];
+        else break;
+      }
+      return cur;
+    };
+
+    const Icon = ({ name, className = "w-4 h-4", fill = "none" }) => {
+      switch (name) {
+        case 'sparkles':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+        case 'flame':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>;
+        case 'trophy':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
+        case 'heart':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>;
+        case 'check-circle':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
+        case 'circle':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/></svg>;
+        case 'calendar':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
+        case 'refresh':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>;
+        case 'clock':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+        case 'plus':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+        case 'trash':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>;
+        case 'edit':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>;
+        case 'download':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+        case 'upload':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>;
+        case 'copy':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>;
+        case 'check':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
+        case 'settings':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
+        case 'zap':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+        case 'close':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+        case 'filter':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>;
+        case 'book-open':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
+        case 'link':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>;
+        case 'external-link':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
+        case 'user':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+        default:
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/></svg>;
+      }
+    };
+
+    class ErrorBoundary extends Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false };
+      }
+      static getDerivedStateFromError() {
+        return { hasError: true };
+      }
+      componentDidCatch(error, errorInfo) {
+        console.error("ErrorBoundary caught:", error, errorInfo);
+      }
+      handleRepair = () => {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const data = JSON.parse(raw);
+            const sanitized = sanitizeAppState(data);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
+          }
+        } catch (e) {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+        window.location.reload();
+      };
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center p-4">
+              <div className="max-w-md w-full bg-slate-800 border-2 border-amber-400 rounded-3xl p-6 text-center space-y-4 shadow-2xl">
+                <div className="text-4xl">🛠️</div>
+                <h2 className="text-lg font-bold text-amber-300">データ保護・修復モード</h2>
+                <p className="text-xs text-slate-300 bg-slate-900/80 p-3 rounded-xl border border-slate-700 text-left leading-relaxed">
+                  過去のEXPやタスク記録を失うことなく、最新仕様へ自動修復して安全に復帰します。
+                </p>
+                <button
+                  onClick={this.handleRepair}
+                  className="w-full py-3 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs rounded-xl shadow-lg active:scale-95"
+                >
+                  安全に自動修復して起動
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    function App() {
+      const [activeTab, setActiveTab] = useState('habits');
+      // デフォルトで未完了優先ソートをON
+      const [filterUncompleted, setFilterUncompleted] = useState(true);
+
+      const [totalExp, setTotalExp] = useState(140);
+      const [habits, setHabits] = useState(INITIAL_HABITS);
+      const [maintenance, setMaintenance] = useState(INITIAL_MAINTENANCE);
+      const [adhocLogs, setAdhocLogs] = useState([]);
+      const [completedQuests, setCompletedQuests] = useState([]);
+      const [adoptedSuggestions, setAdoptedSuggestions] = useState([]);
+      const [savedReports, setSavedReports] = useState(INITIAL_SAVED_REPORTS);
+      const [profile, setProfile] = useState({
+        userName: '自分マスター',
+        personalTheme: '首肩こり根絶＆美姿勢・自律神経の調律',
+        targetReward: 'お気に入りの入浴剤で極上リラクゼーション'
+      });
+      const [lastActiveDate, setLastActiveDate] = useState(getTodayString());
+
+      // UIステート
+      const [floatingExp, setFloatingExp] = useState(null);
+      const [saveStatus, setSaveStatus] = useState('保存済 ✓');
+      const [showReportModal, setShowReportModal] = useState(false);
+      const [showHistoryModal, setShowHistoryModal] = useState(false);
+      const [showSettingsModal, setShowSettingsModal] = useState(false);
+      const [showDictionaryModal, setShowDictionaryModal] = useState(false);
+      const [showMotivationModal, setShowMotivationModal] = useState(false);
+      const [showProfileModal, setShowProfileModal] = useState(false);
+      const [showInstallGuideModal, setShowInstallGuideModal] = useState(false);
+      const [activeTriviaModal, setActiveTriviaModal] = useState(null);
+
+      const [editingTask, setEditingTask] = useState(null);
+      const [editingMaintenance, setEditingMaintenance] = useState(null);
+      const [customAdhocText, setCustomAdhocText] = useState('');
+      const [customAdhocExp, setCustomAdhocExp] = useState(15);
+      const [copyFeedback, setCopyFeedback] = useState(false);
+      const [milestoneModalData, setMilestoneModalData] = useState(null);
+      const [timeUntilMidnight, setTimeUntilMidnight] = useState('');
+      const [viewingReport, setViewingReport] = useState(null);
+      const [activeQuote, setActiveQuote] = useState('');
+      const [rewardIndex, setRewardIndex] = useState(0);
+      const [recoveryToast, setRecoveryToast] = useState(null);
+
+      // 初期ロード
+      useEffect(() => {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            const safe = sanitizeAppState(parsed);
+
+            setTotalExp(safe.totalExp);
+            setMaintenance(safe.maintenance);
+            setAdhocLogs(safe.adhocLogs);
+            setCompletedQuests(safe.completedQuests);
+            setAdoptedSuggestions(safe.adoptedSuggestions);
+            setSavedReports(safe.savedReports);
+            setProfile(safe.profile);
+
+            const today = getTodayString();
+            if (safe.lastActiveDate && safe.lastActiveDate !== today) {
+              const reset = safe.habits.map(h => ({
+                ...h,
+                countToday: 0,
+                bonusToday: 0
+              }));
+              setHabits(reset);
+              setCompletedQuests([]);
+              setLastActiveDate(today);
+            } else {
+              setHabits(safe.habits);
+              setLastActiveDate(safe.lastActiveDate);
+            }
+          }
+        } catch (e) {
+          console.warn('LocalStorage error:', e);
+        }
+      }, []);
+
+      // 24:00自動確定・カウントダウン
+      useEffect(() => {
+        const checkMidnight = () => {
+          const now = new Date();
+          const today = getTodayString();
+          const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+          const diffMs = midnight.getTime() - now.getTime();
+          const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+          const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+          setTimeUntilMidnight(`${diffHrs}時間${diffMins}分`);
+
+          if (lastActiveDate && lastActiveDate !== today) {
+            const yesterdayReport = generateReportForDate(lastActiveDate);
+            const newArchive = {
+              date: lastActiveDate,
+              reportText: yesterdayReport,
+              totalExpEarned: habits.reduce((acc, h) => acc + ((Number(h.countToday) || 0) * (Number(h.exp) || 0) + (Number(h.bonusToday) || 0) * (Number(h.bonusExp) || 0)), 0),
+              completedCount: habits.reduce((acc, h) => acc + (Number(h.countToday) || 0), 0)
+            };
+
+            setSavedReports(prev => [newArchive, ...prev.filter(r => r.date !== lastActiveDate)]);
+            setHabits(prev => prev.map(h => ({ ...h, countToday: 0, bonusToday: 0 })));
+            setCompletedQuests([]);
+            setAdhocLogs([]);
+            setLastActiveDate(today);
+          }
+        };
+
+        checkMidnight();
+        const interval = setInterval(checkMidnight, 30000);
+        return () => clearInterval(interval);
+      }, [lastActiveDate, habits]);
+
+      // 自動保存
+      useEffect(() => {
+        setSaveStatus('保存中...');
+        const timer = setTimeout(() => {
+          try {
+            const payload = {
+              schemaVersion: CURRENT_SCHEMA_VERSION,
+              totalExp: Number(totalExp) || 0,
+              habits: sanitizeHabits(habits),
+              maintenance: sanitizeMaintenance(maintenance),
+              adhocLogs,
+              completedQuests,
+              adoptedSuggestions,
+              savedReports: sanitizeSavedReports(savedReports),
+              profile: sanitizeProfile(profile),
+              lastActiveDate
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+            setSaveStatus('自動保存済 ✓');
+          } catch (e) {
+            setSaveStatus('保存エラー ✕');
+          }
+        }, 300);
+        return () => clearTimeout(timer);
+      }, [totalExp, habits, maintenance, adhocLogs, completedQuests, adoptedSuggestions, savedReports, profile, lastActiveDate]);
+
+      // 本日の獲得EXP
+      const todayEarnedExp = useMemo(() => {
+        const habitExp = (habits || []).reduce((acc, h) => {
+          const c = Number(h.countToday) || 0;
+          const e = Number(h.exp) || 0;
+          const bc = Number(h.bonusToday) || 0;
+          const be = Number(h.bonusExp) || 0;
+          return acc + (c * e) + (bc * be);
+        }, 0);
+        const adhocExp = (adhocLogs || []).reduce((acc, l) => acc + (Number(l.exp) || 0), 0);
+        return habitExp + adhocExp;
+      }, [habits, adhocLogs]);
+
+      // 日替わり「本日の生体サイエンス・インサイト」
+      const todayScienceInsight = useMemo(() => {
+        const day = new Date().getDate();
+        return DAILY_SCIENCE_INSIGHTS[day % DAILY_SCIENCE_INSIGHTS.length];
+      }, [lastActiveDate]);
+
+      // 歴代TOP3ターゲット
+      const rankingTargetInfo = useMemo(() => {
+        const safeReports = Array.isArray(savedReports) && savedReports.length > 0 ? savedReports : INITIAL_SAVED_REPORTS;
+        const sorted = [...safeReports].sort((a, b) => (Number(b.totalExpEarned) || 0) - (Number(a.totalExpEarned) || 0));
+        const top1 = Number(sorted[0]?.totalExpEarned) || 120;
+        const top2 = Number(sorted[1]?.totalExpEarned) || 90;
+        const top3 = Number(sorted[2]?.totalExpEarned) || 60;
+
+        if (todayEarnedExp > top1) {
+          return {
+            text: `👑 歴代1位新記録を更新中！（過去最高 +${top1} EXP突破！）`,
+            targetRank: 1,
+            diff: 0
+          };
+        } else if (todayEarnedExp > top2) {
+          const diff = top1 - todayEarnedExp + 1;
+          return {
+            text: `🥈 歴代2位圏内！あと ${diff} EXP で歴代1位です！`,
+            targetRank: 1,
+            diff
+          };
+        } else if (todayEarnedExp > top3) {
+          const diff = top2 - todayEarnedExp + 1;
+          return {
+            text: `🥉 歴代3位圏内！あと ${diff} EXP で歴代2位です！`,
+            targetRank: 2,
+            diff
+          };
+        } else {
+          const diff = Math.max(1, top3 - todayEarnedExp + 1);
+          return {
+            text: `あと ${diff} EXP で歴代3位です！`,
+            targetRank: 3,
+            diff
+          };
+        }
+      }, [savedReports, todayEarnedExp]);
+
+      // レベル計算
+      const currentLevelInfo = useMemo(() => {
+        const exp = Number(totalExp) || 0;
+        let current = LEVEL_TITLES[0];
+        let next = LEVEL_TITLES[1];
+        for (let i = 0; i < LEVEL_TITLES.length; i++) {
+          if (exp >= LEVEL_TITLES[i].minExp) {
+            current = LEVEL_TITLES[i];
+            next = LEVEL_TITLES[i + 1] || null;
+          } else break;
+        }
+        const currentBase = current.minExp;
+        const nextBase = next ? next.minExp : current.minExp + 1000;
+        const progressPercent = next
+          ? Math.min(100, Math.max(0, ((exp - currentBase) / (nextBase - currentBase)) * 100))
+          : 100;
+
+        return {
+          level: current.level,
+          title: current.title,
+          praise: current.praise,
+          reward: current.reward,
+          progressPercent,
+          nextMinExp: nextBase,
+          currentMinExp: currentBase
+        };
+      }, [totalExp]);
+
+      // 身体・生活配当カルテ
+      const personalHealthStats = useMemo(() => {
+        const stats = {
+          posture: 0,
+          vascular: 0,
+          brain: 0,
+          autonomic: 0,
+          environment: 0
+        };
+
+        (habits || []).forEach(h => {
+          const count = Number(h.totalCount) || 0;
+          const k = getHabitDividend(h.name, count, lastActiveDate);
+          if (k.category.includes('姿勢') || k.category.includes('筋骨格')) stats.posture += count;
+          else if (k.category.includes('血管') || k.category.includes('代謝')) stats.vascular += count;
+          else if (k.category.includes('脳') || k.category.includes('集中')) stats.brain += count;
+          else if (k.category.includes('自律神経') || k.category.includes('睡眠')) stats.autonomic += count;
+          else stats.environment += count;
+        });
+
+        return stats;
+      }, [habits, lastActiveDate]);
+
+      // EXP加算
+      const triggerExpGain = (amount, label = 'EXP') => {
+        const val = Number(amount) || 0;
+        setTotalExp(prev => (Number(prev) || 0) + val);
+        setFloatingExp({ amount: val, label, key: Date.now() });
+        setTimeout(() => setFloatingExp(null), 1200);
+      };
+
+      // デイリークエスト
+      const todayQuests = useMemo(() => {
+        const day = new Date().getDate();
+        const q1 = DAILY_QUEST_POOL[day % DAILY_QUEST_POOL.length];
+        const q2 = DAILY_QUEST_POOL[(day + 3) % DAILY_QUEST_POOL.length];
+        return [q1, q2];
+      }, []);
+
+      const completeQuest = (quest) => {
+        if (completedQuests.includes(quest.id)) return;
+        setCompletedQuests(prev => [...prev, quest.id]);
+        triggerExpGain(quest.bonusExp, `🎯クエスト達成 +${quest.bonusExp}`);
+      };
+
+      // 新ルール提案バナー
+      const availableSuggestion = useMemo(() => {
+        return RULE_SUGGESTIONS.find(
+          s => totalExp >= s.triggerExp && !adoptedSuggestions.includes(s.id)
+        );
+      }, [totalExp, adoptedSuggestions]);
+
+      const adoptRuleSuggestion = (sug) => {
+        const newHabit = {
+          id: 'h-' + Date.now(),
+          ...sug.habit,
+          countToday: 0,
+          bonusToday: 0,
+          totalCount: 0,
+          lastUpdated: ''
+        };
+        setHabits(prev => [newHabit, ...prev]);
+        setAdoptedSuggestions(prev => [...prev, sug.id]);
+        triggerExpGain(30, '🎉新ルール採用 +30');
+      };
+
+      // 習慣インクリメント
+      const handleHabitIncrement = (id, isBonus = false) => {
+        setHabits(prev =>
+          prev.map(item => {
+            if (item.id === id) {
+              const expVal = Number(item.exp) || 10;
+              const bonusVal = Number(item.bonusExp) || 5;
+              const expGain = isBonus ? expVal + bonusVal : expVal;
+              triggerExpGain(expGain, isBonus ? `⚡ボーナス +${expGain}` : `+${expGain}`);
+
+              const newTotal = (Number(item.totalCount) || 0) + 1;
+              const knowledge = getHabitDividend(item.name, newTotal, lastActiveDate);
+
+              if ([5, 10, 20, 30, 50, 100].includes(newTotal)) {
+                setTimeout(() => {
+                  setMilestoneModalData({
+                    taskName: item.name,
+                    emoji: item.emoji || '✨',
+                    totalCount: newTotal,
+                    stageName: knowledge.stageName,
+                    dividendTitle: knowledge.dividendTitle,
+                    dividendDesc: knowledge.dividendDesc,
+                    trivia: knowledge.trivia,
+                    dailyPoint: knowledge.dailyPoint
+                  });
+                }, 350);
+              }
+
+              return {
+                ...item,
+                countToday: (Number(item.countToday) || 0) + 1,
+                bonusToday: isBonus ? (Number(item.bonusToday) || 0) + 1 : (Number(item.bonusToday) || 0),
+                totalCount: newTotal,
+                lastUpdated: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              };
+            }
+            return item;
+          })
+        );
+      };
+
+      // メンテ完了
+      const completeMaintenanceTask = (id) => {
+        setMaintenance(prev =>
+          prev.map(task => {
+            if (task.id === id) {
+              const gain = Number(task.exp) || 30;
+              triggerExpGain(gain, `✨メンテ完了 +${gain}`);
+              if (task.type === 'single') {
+                return { ...task, completed: true, totalCount: (Number(task.totalCount) || 0) + 1 };
+              }
+              return {
+                ...task,
+                lastDoneDate: getTodayString(),
+                totalCount: (Number(task.totalCount) || 0) + 1
+              };
+            }
+            return task;
+          })
+        );
+      };
+
+      const handleSaveMaintenance = (taskToSave) => {
+        if (!taskToSave || !taskToSave.name || !taskToSave.name.trim()) return;
+        setMaintenance(prev => {
+          if (!taskToSave.id) {
+            const newTask = {
+              ...taskToSave,
+              id: 'm-' + Date.now(),
+              name: taskToSave.name.trim(),
+              emoji: taskToSave.emoji || '🧹',
+              type: taskToSave.type || 'cycle',
+              cycleDays: Number(taskToSave.cycleDays) || 14,
+              fixedDay: Math.min(31, Math.max(1, Number(taskToSave.fixedDay) || 1)),
+              dueDate: taskToSave.dueDate || getTodayString(),
+              lastDoneDate: taskToSave.lastDoneDate || getTodayString(),
+              exp: Number(taskToSave.exp) || 30,
+              totalCount: Math.max(0, Number(taskToSave.totalCount) || 0),
+              completed: taskToSave.type === 'single' ? Boolean(taskToSave.completed) : false
+            };
+            return [newTask, ...prev];
+          } else {
+            return prev.map(t => (t.id === taskToSave.id ? {
+              ...t,
+              ...taskToSave,
+              name: taskToSave.name.trim(),
+              emoji: taskToSave.emoji || '🧹',
+              exp: Number(taskToSave.exp) || 30,
+              cycleDays: Number(taskToSave.cycleDays) || 14,
+              fixedDay: Math.min(31, Math.max(1, Number(taskToSave.fixedDay) || 1)),
+              totalCount: Math.max(0, Number(taskToSave.totalCount) || 0),
+              completed: Boolean(taskToSave.completed)
+            } : t));
+          }
+        });
+        setEditingMaintenance(null);
+      };
+
+      const handleDeleteMaintenance = (id) => {
+        setMaintenance(prev => prev.filter(t => t.id !== id));
+        setEditingMaintenance(null);
+      };
+
+      const addAdhocLog = (name, emoji, exp) => {
+        const expVal = Number(exp) || 15;
+        const newLog = {
+          id: 'adhoc-' + Date.now(),
+          name: name || '突発ログ',
+          emoji: emoji || '🌟',
+          exp: expVal,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setAdhocLogs(prev => [newLog, ...prev]);
+        triggerExpGain(expVal, `突発ログ +${expVal}`);
+      };
+
+      // ソート
+      const sortedHabits = useMemo(() => {
+        const safe = Array.isArray(habits) ? habits : [];
+        if (!filterUncompleted) return safe;
+        return [...safe].sort((a, b) => {
+          const aDone = (Number(a.countToday) || 0) > 0 ? 1 : 0;
+          const bDone = (Number(b.countToday) || 0) > 0 ? 1 : 0;
+          return aDone - bDone;
+        });
+      }, [habits, filterUncompleted]);
+
+      const sortedMaintenance = useMemo(() => {
+        const safe = Array.isArray(maintenance) ? maintenance : [];
+        const list = safe.map(task => ({
+          ...task,
+          _remainingDays: getRemainingDays(task)
+        }));
+        return list.sort((a, b) => {
+          const aComp = a.type === 'single' && a.completed;
+          const bComp = b.type === 'single' && b.completed;
+          if (aComp && !bComp) return 1;
+          if (!aComp && bComp) return -1;
+          return a._remainingDays - b._remainingDays;
+        });
+      }, [maintenance]);
+
+      // 報告文生成（安全修復版）
+      const generateReportForDate = (targetDateStr) => {
+        const completedList = (habits || []).filter(h => (Number(h.countToday) || 0) > 0);
+        const totalTodayCounts = (habits || []).reduce((acc, cur) => acc + (Number(cur.countToday) || 0), 0);
+
+        let report = `🌟 【自己肯定感＆実生活・身体配当 確定報告書】 🌟\n`;
+        report += `👤 実践者: ${profile.userName} | テーマ: 「${profile.personalTheme}」\n`;
+        report += `📅 日付: ${targetDateStr || getTodayString()}\n`;
+        report += `👑 現在の称号: Lv.${currentLevelInfo.level}「${currentLevelInfo.title}」 (累計 ${totalExp} EXP)\n`;
+        report += `🌙 24:00自動確定システム記録済\n`;
+        report += `────────────────────────────\n\n`;
+
+        report += `🔥 【本日積み上げた偉業（計 ${totalTodayCounts} 回）】\n`;
+        if (completedList.length === 0) {
+          report += `・まずは息をして今日を生き抜いたこと自体が100点満点の大ファインプレー！\n`;
+        } else {
+          completedList.forEach(h => {
+            report += `・${h.emoji || '✨'} ${h.name} × ${h.countToday}回（通算: ${h.totalCount || 0}回）\n`;
+            if ((Number(h.bonusToday) || 0) > 0) {
+              report += `  └ ⚡ 条件ボーナス達成: 「${h.bonusText}」 × ${h.bonusToday}回！\n`;
+            }
+          });
+        }
+
+        if (adhocLogs && adhocLogs.length > 0) {
+          report += `\n⚡ 【突発的な機転と頑張りのログ】\n`;
+          adhocLogs.forEach(l => {
+            report += `・${l.emoji || '✨'} ${l.name} (${l.timestamp}) [+${l.exp} EXP]\n`;
+          });
+        }
+
+        report += `\n🧬 【本日確定した具体的な実生活・身体配当（生体適応進化版）】\n`;
+        if (completedList.length > 0) {
+          const uniqueTitled = new Set();
+          completedList.forEach(h => {
+            const k = getHabitDividend(h.name, h.totalCount || 0, targetDateStr);
+            if (!uniqueTitled.has(k.dividendTitle)) {
+              uniqueTitled.add(k.dividendTitle);
+              report += `◆ ${h.emoji || '✨'} ${h.name} [通算 ${h.totalCount || 0}回目 - ${k.stageName}]\n`;
+              report += `  ${k.dividendTitle}\n`;
+              report += `  ${k.dividendDesc}\n`;
+              report += `  💡 科学メカニズム: ${k.trivia}\n`;
+              if (k.dailyPoint) {
+                report += `  🎯 本日の実践視点: ${k.dailyPoint}\n\n`;
+              }
+            }
+          });
+        } else {
+          report += `・心身の休息配当：無理をせずエネルギーを充填し、自律神経の修復を行いました。\n`;
+        }
+
+        report += `────────────────────────────\n`;
+        report += `【全肯定メッセージ】\n世界は大きな成果ばかりを求めがちですが、本当に生活を支え、未来の健康と時間を守っているのは、今日あなたがこなした地道な1回1回です。誰が見ていなくても、このアプリとあなたの身体はすべて記憶しています。今夜は胸を張ってゆっくり休んでください✨`;
+
+        return report;
+      };
+
+      const copyToClipboard = (text) => {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        setCopyFeedback(true);
+        setTimeout(() => setCopyFeedback(false), 2000);
+      };
+
+      return (
+        <div className="flex flex-col min-h-[100dvh] bg-slate-900 text-slate-100 font-sans antialiased pb-[calc(env(safe-area-inset-bottom)+88px)]">
+          
+          {/* Recovery feedback banner */}
+          {recoveryToast && (
+            <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-md animate-bounce">
+              <div className="bg-emerald-500 text-slate-950 px-4 py-2.5 rounded-2xl shadow-xl font-bold text-xs flex items-center justify-between border-2 border-white">
+                <span>{recoveryToast}</span>
+                <button onClick={() => setRecoveryToast(null)} className="ml-2 font-black text-sm">✕</button>
+              </div>
+            </div>
+          )}
+
+          {/* Floating EXP gain */}
+          {floatingExp && (
+            <div key={floatingExp.key} className="fixed top-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-bounce">
+              <div className="bg-amber-400 text-slate-950 font-black text-xs px-3.5 py-1.5 rounded-full shadow-lg shadow-amber-400/40 flex items-center gap-1 border-2 border-white">
+                <Icon name="zap" className="w-3.5 h-3.5 text-slate-950" fill="currentColor" />
+                <span>{floatingExp.label}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Header */}
+          <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 pt-[env(safe-area-inset-top)] px-4 pb-2.5">
+            <div className="max-w-xl mx-auto flex items-center justify-between gap-2 pt-2">
+              
+              {/* Level / Title / User */}
+              <div className="flex items-center gap-2 min-w-0">
+                <div
+                  onClick={() => setShowProfileModal(true)}
+                  className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center font-black text-slate-950 text-sm shadow-md shrink-0 cursor-pointer active:scale-95"
+                  title="パーソナル設定を開く"
+                >
+                  Lv.{currentLevelInfo.level}
+                </div>
+                <div className="min-w-0 cursor-pointer" onClick={() => setShowProfileModal(true)}>
+                  <div className="text-xs font-bold text-amber-300 truncate flex items-center gap-1">
+                    <span className="truncate">{profile.userName}</span>
+                    <span className="text-[10px] text-slate-400 font-normal">({currentLevelInfo.title})</span>
+                  </div>
+                  <div className="text-[10px] text-emerald-400 truncate flex items-center gap-1">
+                    <span>🎯 {profile.personalTheme}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  onClick={() => {
+                    const q = MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
+                    setActiveQuote(q);
+                    setShowMotivationModal(true);
+                  }}
+                  className="px-2 py-1 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 font-bold text-[11px] flex items-center gap-1 active:scale-95 transition-all"
+                  title="自己肯定感チャージ！"
+                >
+                  <Icon name="heart" className="w-3 h-3 text-rose-400" fill="currentColor" />
+                  <span>褒めて！</span>
+                </button>
+
+                <button
+                  onClick={() => setShowDictionaryModal(true)}
+                  className="px-2 py-1 rounded-xl bg-sky-950/80 hover:bg-sky-900 border border-sky-400/50 text-sky-300 font-bold text-[11px] flex items-center gap-1 active:scale-95 transition-all"
+                  title="医学・科学うんちく＆身体配当 辞書"
+                >
+                  <span>🧬 科学辞典</span>
+                </button>
+
+                <button
+                  onClick={() => setShowHistoryModal(true)}
+                  className="px-2 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 font-bold text-[11px] flex items-center gap-1 transition-all active:scale-95"
+                  title="過去のTOP3＆直近1週間の報告文アーカイブ"
+                >
+                  <Icon name="book-open" className="w-3 h-3 text-amber-400" />
+                  <span>実績</span>
+                </button>
+
+                <button
+                  onClick={() => setShowSettingsModal(true)}
+                  className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300"
+                  title="設定・バックアップ"
+                >
+                  <Icon name="settings" className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            {/* EXP Gauge */}
+            <div className="max-w-xl mx-auto mt-2">
+              <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-700/50">
+                <div
+                  className="bg-gradient-to-r from-amber-400 to-orange-500 h-full rounded-full transition-all duration-300"
+                  style={{ width: `${currentLevelInfo.progressPercent}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Real-time TOP 3 Ranking Bar */}
+            <div
+              onClick={() => setShowHistoryModal(true)}
+              className="max-w-xl mx-auto mt-2 bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-amber-500/10 hover:from-amber-500/25 hover:to-orange-500/20 border border-amber-500/40 rounded-xl px-3 py-1.5 flex items-center justify-between cursor-pointer transition-all active:scale-[0.99] shadow-sm"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-sm shrink-0">
+                  {rankingTargetInfo.targetRank === 1 ? '👑' : rankingTargetInfo.targetRank === 2 ? '🥈' : '🥉'}
+                </span>
+                <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                  <span className="text-[11px] text-slate-300 font-medium">
+                    本日: <strong className="text-amber-300 font-mono font-bold">+{todayEarnedExp}</strong> EXP
+                  </span>
+                  <span className="text-slate-600 text-[10px]">|</span>
+                  <span className="text-xs font-black text-amber-200 tracking-tight whitespace-normal break-words">
+                    {rankingTargetInfo.text}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 text-[10px] text-amber-400 font-bold shrink-0 pl-1">
+                <span>歴代TOP3</span>
+                <Icon name="book-open" className="w-3 h-3 text-amber-400" />
+              </div>
+            </div>
+          </header>
+
+          {/* 本日の生体サイエンス・インサイト */}
+          <div className="max-w-xl mx-auto w-full px-4 pt-2">
+            <div className="bg-gradient-to-r from-sky-950/70 via-indigo-950/70 to-slate-900 border border-sky-400/30 rounded-2xl p-2.5 shadow-sm">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-sky-300">
+                  <span className="text-sm">🔬</span>
+                  <span>本日の人体サイエンス・インサイト</span>
+                </div>
+                <span className="text-[9px] bg-sky-900/80 text-sky-200 px-2 py-0.5 rounded-full border border-sky-400/40 font-mono">
+                  24:00 日替わり更新
+                </span>
+              </div>
+              <h4 className="text-xs font-bold text-amber-200 mt-1">
+                {todayScienceInsight.title}
+              </h4>
+              <p className="text-[11px] text-slate-300 mt-1 leading-relaxed line-clamp-2">
+                {todayScienceInsight.content}
+              </p>
+              <button
+                onClick={() => setActiveTriviaModal({
+                  habitName: todayScienceInsight.category,
+                  stageName: '本日のサイエンスコラム',
+                  benefitTag: `🔬 分野: ${todayScienceInsight.category}`,
+                  dividendTitle: todayScienceInsight.title,
+                  dividendDesc: todayScienceInsight.content,
+                  trivia: '人体の生理リズムは一定ではなく、日々の小さな入力（光・水分・筋肉の収縮）に呼応して常に最適化されています。今日の行動を肯定する根拠としてご活用ください。',
+                  dailyPoint: '「知識を行動に変えた瞬間、それはあなたの身体の一部になります。」'
+                })}
+                className="mt-1.5 text-[10px] text-sky-300 hover:text-sky-200 font-bold flex items-center gap-1 hover:underline"
+              >
+                <span>コラム全文を読む →</span>
+              </button>
+            </div>
+          </div>
+
+          {/* デイリー特別クエスト */}
+          <div className="max-w-xl mx-auto w-full px-4 pt-2">
+            <div className="bg-gradient-to-r from-indigo-950/60 to-purple-950/60 border border-indigo-500/30 rounded-2xl p-2.5">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-1 text-xs font-bold text-indigo-300">
+                  <Icon name="sparkles" className="w-3.5 h-3.5 text-amber-400" fill="currentColor" />
+                  <span>本日のデイリー特別クエスト</span>
+                </div>
+                <span className="text-[10px] text-indigo-300/80">達成で即ボーナス</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                {todayQuests.map((quest) => {
+                  const isDone = completedQuests.includes(quest.id);
+                  return (
+                    <div
+                      key={quest.id}
+                      onClick={() => !isDone && completeQuest(quest)}
+                      className={`flex items-center justify-between p-2 rounded-xl border transition-all ${
+                        isDone
+                          ? 'bg-indigo-950/40 border-indigo-500/20 opacity-70'
+                          : 'bg-slate-900/80 hover:bg-slate-800 border-indigo-400/30 cursor-pointer active:scale-95'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5 min-w-0 pr-1">
+                        <span className="text-sm shrink-0">{quest.emoji}</span>
+                        <span className={`text-[11px] leading-snug truncate ${isDone ? 'line-through text-slate-400' : 'text-slate-200'}`}>
+                          {quest.text}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span className="text-[10px] font-bold text-amber-300 font-mono">+{quest.bonusExp}</span>
+                        {isDone ? (
+                          <Icon name="check-circle" className="w-4 h-4 text-emerald-400" />
+                        ) : (
+                          <Icon name="circle" className="w-4 h-4 text-slate-500" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* 新ルール自動提案バナー */}
+          {availableSuggestion && (
+            <div className="max-w-xl mx-auto w-full px-4 pt-2">
+              <div className="bg-amber-950/40 border border-amber-500/40 rounded-2xl p-2.5 flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1 text-xs font-bold text-amber-300">
+                    <Icon name="flame" className="w-3.5 h-3.5 text-orange-400" />
+                    <span>{availableSuggestion.title}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 mt-0.5 leading-snug">
+                    {availableSuggestion.description}
+                  </p>
+                </div>
+                <button
+                  onClick={() => adoptRuleSuggestion(availableSuggestion)}
+                  className="shrink-0 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95"
+                >
+                  採用する
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Tabs and Filter */}
+          <div className="max-w-xl mx-auto w-full px-4 pt-2">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5 bg-slate-800/80 px-2.5 py-1 rounded-xl border border-slate-700/60 text-xs">
+                <Icon name="filter" className="w-3 h-3 text-slate-400" />
+                <span className="text-slate-300 text-[11px] font-medium">未完了を優先</span>
+                <button
+                  type="button"
+                  onClick={() => setFilterUncompleted(!filterUncompleted)}
+                  className={`w-7 h-4 flex items-center rounded-full p-0.5 transition-colors ${
+                    filterUncompleted ? 'bg-amber-500 justify-end' : 'bg-slate-700 justify-start'
+                  }`}
+                >
+                  <div className="bg-white w-3 h-3 rounded-full shadow-sm" />
+                </button>
+              </div>
+
+              <button
+                onClick={() => setShowProfileModal(true)}
+                className="text-[11px] text-amber-400/90 font-medium hover:underline flex items-center gap-1"
+              >
+                <span>📊 身体配当カルテ</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-1 bg-slate-800/90 p-1 rounded-2xl border border-slate-700/80">
+              <button
+                onClick={() => setActiveTab('habits')}
+                className={`py-1.5 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 ${
+                  activeTab === 'habits'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Icon name="refresh" className="w-3.5 h-3.5" />
+                <span>日々の習慣</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('maintenance')}
+                className={`py-1.5 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 ${
+                  activeTab === 'maintenance'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Icon name="calendar" className="w-3.5 h-3.5" />
+                <span>定期メンテ</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('adhoc')}
+                className={`py-1.5 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 ${
+                  activeTab === 'adhoc'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Icon name="zap" className="w-3.5 h-3.5" />
+                <span>突発ログ</span>
+              </button>
+            </div>
+          </div>
+
+          <main className="max-w-xl mx-auto w-full px-4 pt-2.5 flex-1">
+            
+            {/* 1. 日々の習慣タブ */}
+            {activeTab === 'habits' && (
+              <div className="space-y-2.5">
+                {sortedHabits.map((habit) => {
+                  const isCompletedToday = (Number(habit.countToday) || 0) > 0;
+                  const knowledge = getHabitDividend(habit.name, habit.totalCount || 0, lastActiveDate);
+                  const hasLink = typeof habit.linkUrl === 'string' && habit.linkUrl.trim() !== '';
+
+                  return (
+                    <div
+                      key={habit.id}
+                      className={`bg-slate-800/85 border rounded-2xl p-3 transition-all ${
+                        isCompletedToday
+                          ? 'border-emerald-500/40 bg-slate-800/95'
+                          : 'border-slate-700/80 hover:border-slate-600'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start gap-2.5 min-w-0">
+                          <span className="text-2xl shrink-0 p-1 bg-slate-700/50 rounded-xl">{habit.emoji || '✨'}</span>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <h3 className="text-sm font-bold text-slate-100 whitespace-normal break-words">
+                                {habit.name}
+                              </h3>
+                              <span className="text-[10px] font-semibold bg-slate-700/80 text-amber-300 px-1.5 py-0.5 rounded-md border border-slate-600/50">
+                                通算 {habit.totalCount || 0} 回
+                              </span>
+                              <span className="text-[9px] font-bold bg-indigo-950 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-400/40">
+                                {knowledge.stageName.split(':')[0] || 'Stage 1'}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                              <button
+                                onClick={() => setActiveTriviaModal({ habitName: habit.name, ...knowledge })}
+                                className="text-[10px] text-sky-300 hover:text-sky-200 bg-sky-950/80 hover:bg-sky-900 border border-sky-400/40 px-2 py-0.5 rounded-md font-bold flex items-center gap-1 transition-all active:scale-95 text-left"
+                              >
+                                <span>{knowledge.benefitTag}</span>
+                                <span className="text-amber-300 text-[9px]">💡生体うんちく</span>
+                              </button>
+                            </div>
+
+                            {knowledge.dailyPoint && (
+                              <div className="text-[10px] text-slate-400 mt-1 line-clamp-1 italic">
+                                🎯 {knowledge.dailyPoint}
+                              </div>
+                            )}
+
+                            <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-400">
+                              <span>本日: <strong className={(Number(habit.countToday) || 0) > 0 ? 'text-emerald-400 font-bold' : 'text-slate-400'}>{habit.countToday || 0}</strong> 回</span>
+                              {(Number(habit.bonusToday) || 0) > 0 && (
+                                <span className="text-[10px] text-amber-300 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-500/30 font-semibold">
+                                  ⚡条件 {habit.bonusToday} 回
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {hasLink && (
+                            <a
+                              href={/^https?:\/\//i.test(habit.linkUrl.trim()) ? habit.linkUrl.trim() : `https://${habit.linkUrl.trim()}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="px-2.5 py-1 bg-sky-950/90 hover:bg-sky-900 border border-sky-400/60 text-sky-300 rounded-xl text-xs font-bold flex items-center gap-1 transition-all active:scale-95 shadow-md shadow-sky-950/50 shrink-0"
+                            >
+                              <Icon name="link" className="w-3.5 h-3.5 text-sky-400" />
+                              <span>リンク</span>
+                              <Icon name="external-link" className="w-3 h-3 text-sky-400/80" />
+                            </a>
+                          )}
+                          <button
+                            onClick={() => setEditingTask({ ...habit })}
+                            className="p-1.5 text-slate-400 hover:text-amber-300 rounded-lg bg-slate-700/40"
+                            title="編集"
+                          >
+                            <Icon name="edit" className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-2 gap-2 pt-2 border-t border-slate-700/50">
+                        <button
+                          onClick={() => handleHabitIncrement(habit.id, false)}
+                          className="py-2 px-3 bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all rounded-xl text-xs font-bold text-slate-100 flex items-center justify-center gap-1.5 shadow-sm"
+                        >
+                          <Icon name="plus" className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>できた (+{habit.exp || 10})</span>
+                        </button>
+                        <button
+                          onClick={() => handleHabitIncrement(habit.id, true)}
+                          className="py-2 px-3 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 border border-amber-500/30 active:scale-95 transition-all rounded-xl text-xs font-bold text-amber-300 flex items-center justify-center gap-1.5 shadow-sm"
+                        >
+                          <Icon name="zap" className="w-3.5 h-3.5 text-amber-400" />
+                          <span className="truncate">{habit.bonusText || '条件達成'} (+{(Number(habit.exp) || 10) + (Number(habit.bonusExp) || 5)})</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <button
+                  onClick={() =>
+                    setEditingTask({
+                      id: 'h-' + Date.now(),
+                      name: '',
+                      emoji: '✨',
+                      exp: 10,
+                      bonusText: '丁寧に実施',
+                      bonusExp: 5,
+                      linkUrl: '',
+                      countToday: 0,
+                      bonusToday: 0,
+                      totalCount: 0,
+                      lastUpdated: ''
+                    })
+                  }
+                  className="w-full py-2.5 bg-slate-800/60 hover:bg-slate-800 border border-dashed border-slate-700/80 rounded-2xl text-xs text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <Icon name="plus" className="w-4 h-4" />
+                  <span>+ 新しい習慣を追加</span>
+                </button>
+              </div>
+            )}
+
+            {/* 2. 定期メンテナンスタブ */}
+            {activeTab === 'maintenance' && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between bg-slate-800/40 p-2.5 rounded-2xl border border-slate-700/50">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                    <Icon name="clock" className="w-3.5 h-3.5 text-amber-400" />
+                    <span>期限・緊急度順に自動ソート中</span>
+                  </div>
+                  <button
+                    onClick={() =>
+                      setEditingMaintenance({
+                        id: null,
+                        name: '',
+                        emoji: '🧹',
+                        type: 'cycle',
+                        cycleDays: 14,
+                        fixedDay: 1,
+                        dueDate: getTodayString(),
+                        lastDoneDate: getTodayString(),
+                        exp: 30,
+                        totalCount: 0
+                      })
+                    }
+                    className="px-3 py-1 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold text-xs rounded-xl flex items-center gap-1 shadow-sm active:scale-95"
+                  >
+                    <Icon name="plus" className="w-3.5 h-3.5" />
+                    <span>+ 定期タスク登録</span>
+                  </button>
+                </div>
+
+                {sortedMaintenance.map((task) => {
+                  const remaining = task._remainingDays ?? getRemainingDays(task);
+                  let statusBadge = null;
+
+                  if (task.type === 'single' && task.completed) {
+                    statusBadge = <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-700 text-slate-400 rounded-full">完了済</span>;
+                  } else if (remaining < 0) {
+                    statusBadge = <span className="px-2 py-0.5 text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 rounded-full animate-pulse">{Math.abs(remaining)}日 超過！</span>;
+                  } else if (remaining === 0) {
+                    statusBadge = <span className="px-2 py-0.5 text-[10px] font-bold bg-orange-500/20 text-orange-300 border border-orange-500/40 rounded-full animate-pulse">⚡ 本日が期日！</span>;
+                  } else if (remaining <= 3) {
+                    statusBadge = <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full">あと{remaining}日 (そろそろ)</span>;
+                  } else {
+                    statusBadge = <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full">良好 (あと{remaining}日)</span>;
+                  }
+
+                  return (
+                    <div
+                      key={task.id}
+                      className={`bg-slate-800/80 border rounded-2xl p-3.5 transition-all ${
+                        task.completed ? 'opacity-60 border-slate-700/60' : remaining <= 0 ? 'border-rose-500/40 bg-slate-800/95' : 'border-slate-700/80'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start gap-2.5 min-w-0">
+                          <span className="text-2xl p-1 bg-slate-700/50 rounded-xl shrink-0">{task.emoji || '🧹'}</span>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="text-sm font-bold text-slate-100 whitespace-normal break-words">{task.name}</h3>
+                              {statusBadge}
+                            </div>
+                            <div className="text-xs text-slate-400 mt-1">
+                              {task.type === 'cycle' && `前回から ${task.lastDoneDate || '未記録'} (目安: ${task.cycleDays || 14}日ごと)`}
+                              {task.type === 'monthly' && `毎月 ${task.fixedDay || 1}日固定`}
+                              {task.type === 'single' && `締切: ${task.dueDate || '指定なし'}`}
+                            </div>
+                            <div className="text-[11px] text-amber-300 mt-0.5">
+                              通算実施: <strong>{task.totalCount || 0}</strong> 回
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            onClick={() => setEditingMaintenance({ ...task })}
+                            className="p-1.5 text-slate-400 hover:text-amber-300 rounded-lg bg-slate-700/40"
+                          >
+                            <Icon name="edit" className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 pt-2.5 border-t border-slate-700/50 flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-amber-400">獲得 +{task.exp || 30} EXP</span>
+                        <button
+                          onClick={() => completeMaintenanceTask(task.id)}
+                          disabled={task.completed}
+                          className={`px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${
+                            task.completed ? 'bg-slate-700 text-slate-500' : 'bg-emerald-600 hover:bg-emerald-500 text-white active:scale-95'
+                          }`}
+                        >
+                          <Icon name="check" className="w-3.5 h-3.5" />
+                          <span>{task.completed ? '完了済' : '実施完了！'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* 3. 突発ログタブ */}
+            {activeTab === 'adhoc' && (
+              <div className="space-y-3">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!customAdhocText.trim()) return;
+                    addAdhocLog(customAdhocText.trim(), '📝', Number(customAdhocExp) || 15);
+                    setCustomAdhocText('');
+                  }}
+                  className="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-3 shadow-sm"
+                >
+                  <div className="text-xs font-bold text-slate-200 mb-2 flex items-center gap-1.5">
+                    <Icon name="edit" className="w-3.5 h-3.5 text-amber-400" />
+                    <span>手入力で突発ログを記録</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="例：重い荷物を運んだ、愚痴を聞いた"
+                      value={customAdhocText}
+                      onChange={(e) => setCustomAdhocText(e.target.value)}
+                      className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                    />
+                    <select
+                      value={customAdhocExp}
+                      onChange={(e) => setCustomAdhocExp(Number(e.target.value))}
+                      className="bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-xs text-amber-300 font-bold focus:outline-none"
+                    >
+                      <option value={10}>+10 EXP</option>
+                      <option value={15}>+15 EXP</option>
+                      <option value={20}>+20 EXP</option>
+                      <option value={30}>+30 EXP</option>
+                    </select>
+                    <button
+                      type="submit"
+                      className="px-3 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold text-xs rounded-xl active:scale-95"
+                    >
+                      記録
+                    </button>
+                  </div>
+                </form>
+
+                <div className="space-y-2.5">
+                  {ADHOC_TEMPLATES.map((cat, idx) => (
+                    <div key={idx} className="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-3">
+                      <h4 className="text-[11px] font-bold text-amber-300/90 mb-2">{cat.category}</h4>
+                      <div className="flex flex-wrap gap-1.5">
+                        {cat.items.map((item, iIdx) => (
+                          <button
+                            key={iIdx}
+                            onClick={() => addAdhocLog(item.name, item.emoji, item.exp)}
+                            className="px-2.5 py-1.5 bg-slate-900/80 hover:bg-slate-700 active:scale-95 border border-slate-700/80 rounded-xl text-xs text-slate-200 flex items-center gap-1.5"
+                          >
+                            <span>{item.emoji}</span>
+                            <span>{item.name}</span>
+                            <span className="text-[10px] text-amber-400 font-bold">+{item.exp}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-200">本日の突発ログ一覧</span>
+                    <span className="text-[10px] text-slate-400">計 {(adhocLogs || []).length} 件</span>
+                  </div>
+                  {(adhocLogs || []).length === 0 ? (
+                    <p className="text-xs text-slate-500 py-3 text-center">まだ突発ログはありません。</p>
+                  ) : (
+                    <div className="divide-y divide-slate-700/50 max-h-48 overflow-y-auto">
+                      {adhocLogs.map(l => (
+                        <div key={l.id} className="py-2 flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span>{l.emoji}</span>
+                            <span className="text-slate-200">{l.name}</span>
+                            <span className="text-[10px] text-slate-500 font-mono">({l.timestamp})</span>
+                          </div>
+                          <span className="text-[10px] font-bold text-amber-400">+{l.exp} EXP</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* Footer Bottom Bar */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+10px)]">
+            <div className="max-w-xl mx-auto flex flex-col gap-1.5">
+              <div className="flex items-center justify-between text-[11px] text-slate-400 px-1">
+                <span className="flex items-center gap-1 text-amber-300 font-medium">
+                  <span>🌙 24:00 自動確定まで:</span>
+                  <strong className="font-mono text-white">{timeUntilMidnight}</strong>
+                </span>
+                <span className="text-[10px] text-emerald-400 font-mono">{saveStatus}</span>
+              </div>
+              <button
+                onClick={() => setShowReportModal(true)}
+                className="w-full py-2.5 px-4 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm rounded-2xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 active:scale-[0.98]"
+              >
+                <Icon name="sparkles" className="w-4 h-4 text-slate-950" fill="currentColor" />
+                <span>本日の確定報告文を確認・コピーする</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 1. 医学・科学うんちく＆身体配当 辞書モーダル */}
+          {showDictionaryModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-sky-500/40 w-full max-w-lg rounded-3xl p-5 shadow-2xl flex flex-col max-h-[88vh]">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-2 text-sky-300 font-bold text-sm">
+                    <span>🧬 人体メカニズム・身体配当 科学辞典</span>
+                  </div>
+                  <button onClick={() => setShowDictionaryModal(false)} className="p-1 rounded-xl bg-slate-800 text-slate-400">
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="mt-3 flex-1 overflow-y-auto space-y-4 pr-1 text-xs">
+                  <p className="text-slate-300 leading-relaxed text-[11px] bg-slate-800/60 p-3 rounded-2xl border border-slate-700">
+                    日々の小さな反復によって、あなたの体内ではどのようなホルモン・神経伝達物質・筋骨格の変化が起きているのか。その科学的エビデンスを網羅した辞書です。
+                  </p>
+
+                  {COMPREHENSIVE_KNOWLEDGE_BASE.map((item, idx) => (
+                    <div key={idx} className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-3.5 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-amber-300 text-sm">{item.keys[0]}系ルーティン</span>
+                        <span className="text-[10px] font-bold text-sky-300 bg-sky-950/80 px-2 py-0.5 rounded border border-sky-500/30">{item.category}</span>
+                      </div>
+                      
+                      <div className="space-y-2 pt-1">
+                        {item.stages.map((stg, sIdx) => (
+                          <div key={sIdx} className="bg-slate-900/70 p-2.5 rounded-xl border border-slate-750">
+                            <div className="flex items-center justify-between text-[10px] font-bold text-indigo-300 mb-1">
+                              <span>{stg.stageName}</span>
+                              <span className="text-amber-400 font-mono">通算 {stg.minCount}回〜</span>
+                            </div>
+                            <h5 className="font-bold text-white text-xs mb-0.5">{stg.dividendTitle}</h5>
+                            <p className="text-slate-300 text-[11px] leading-relaxed mb-1.5">{stg.dividendDesc}</p>
+                            <div className="text-[10px] text-sky-200 bg-sky-950/50 p-2 rounded-lg border border-sky-500/20">
+                              {stg.trivia}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setShowDictionaryModal(false)}
+                  className="mt-3 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl"
+                >
+                  閉じる
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 2. 単一タスクの科学うんちくポップアップ */}
+          {activeTriviaModal && (
+            <div className="fixed inset-0 z-[60] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border-2 border-sky-400/80 w-full max-w-md rounded-3xl p-5 shadow-2xl flex flex-col max-h-[85vh]">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                  <div className="text-xs font-bold text-sky-300 flex items-center gap-1.5">
+                    <span>💡 【{activeTriviaModal.habitName}】の生体適応＆医学うんちく</span>
+                  </div>
+                  <button onClick={() => setActiveTriviaModal(null)} className="p-1 rounded-xl bg-slate-800 text-slate-400">
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="mt-3 overflow-y-auto space-y-3 text-xs leading-relaxed">
+                  {activeTriviaModal.stageName && (
+                    <div className="bg-gradient-to-r from-indigo-950/70 to-slate-900 p-2.5 rounded-xl border border-indigo-500/40 flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-indigo-300">
+                        🧬 現在の生体適応フェーズ:
+                      </span>
+                      <span className="text-[11px] font-black text-amber-300">
+                        {activeTriviaModal.stageName}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-3">
+                    <span className="text-[10px] font-bold text-amber-300 block mb-1">
+                      {activeTriviaModal.benefitTag}
+                    </span>
+                    <h4 className="text-xs font-bold text-white mb-1">
+                      {activeTriviaModal.dividendTitle}
+                    </h4>
+                    <p className="text-slate-300 text-[11px]">
+                      {activeTriviaModal.dividendDesc}
+                    </p>
+                  </div>
+
+                  <div className="bg-sky-950/40 border border-sky-500/30 rounded-2xl p-3">
+                    <h5 className="text-[11px] font-bold text-sky-300 mb-1">
+                      🔬 医学・生物学的メカニズム
+                    </h5>
+                    <p className="text-slate-200 text-[11px] leading-relaxed">
+                      {activeTriviaModal.trivia}
+                    </p>
+                  </div>
+
+                  {activeTriviaModal.dailyPoint && (
+                    <div className="bg-amber-950/30 border border-amber-500/30 rounded-2xl p-3">
+                      <h5 className="text-[11px] font-bold text-amber-300 mb-1">
+                        🎯 本日の実践ワンポイント（日替わり視点）
+                      </h5>
+                      <p className="text-slate-300 text-[11px] leading-relaxed">
+                        {activeTriviaModal.dailyPoint}
+                      </p>
+                    </div>
+                  )}
+
+                  {activeTriviaModal.nextStage && (
+                    <div className="bg-purple-950/30 border border-purple-500/30 rounded-2xl p-3 text-[11px]">
+                      <div className="flex items-center justify-between text-purple-300 font-bold mb-1">
+                        <span>🔓 次の進化フェーズ予告</span>
+                        <span>あと {activeTriviaModal.minCountToNext} 回で到達！</span>
+                      </div>
+                      <p className="text-slate-300">
+                        通算{activeTriviaModal.nextStage.minCount}回到達で<strong>「{activeTriviaModal.nextStage.stageName}」</strong>がアンロックされ、さらなる生体適応（{activeTriviaModal.nextStage.benefitTag}）が授与されます！
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => setActiveTriviaModal(null)}
+                  className="mt-4 w-full py-2.5 bg-gradient-to-r from-sky-400 to-indigo-500 text-slate-950 font-black text-xs rounded-xl"
+                >
+                  納得して閉じる
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 3. パーソナル目標・プロフィール・カルテモーダル */}
+          {showProfileModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-amber-500/40 w-full max-w-md rounded-3xl p-5 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-1.5 text-amber-300 font-bold text-sm">
+                    <Icon name="user" className="w-4 h-4 text-amber-400" />
+                    <span>パーソナル設定＆身体配当カルテ</span>
+                  </div>
+                  <button onClick={() => setShowProfileModal(false)} className="p-1 rounded-xl bg-slate-800 text-slate-400">
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="mt-3 bg-gradient-to-r from-slate-800/90 to-indigo-950/50 border border-slate-700/80 rounded-2xl p-3 text-xs space-y-2">
+                  <h4 className="text-[11px] font-bold text-amber-300">📊 これまでの身体配当・蓄積カルテ</h4>
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div className="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
+                      <span className="text-slate-400">🦴 姿勢・筋骨格:</span><br />
+                      <strong className="text-amber-300 text-sm">{personalHealthStats.posture}</strong> 回蓄積
+                    </div>
+                    <div className="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
+                      <span className="text-slate-400">🩸 血管・代謝:</span><br />
+                      <strong className="text-amber-300 text-sm">{personalHealthStats.vascular}</strong> 回蓄積
+                    </div>
+                    <div className="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
+                      <span className="text-slate-400">🧠 脳・集中:</span><br />
+                      <strong className="text-amber-300 text-sm">{personalHealthStats.brain}</strong> 回蓄積
+                    </div>
+                    <div className="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
+                      <span className="text-slate-400">🌙 自律神経・睡眠:</span><br />
+                      <strong className="text-amber-300 text-sm">{personalHealthStats.autonomic}</strong> 回蓄積
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 space-y-2.5 text-xs">
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-bold">ニックネーム・呼称</label>
+                    <input
+                      type="text"
+                      value={profile.userName}
+                      onChange={(e) => setProfile({ ...profile, userName: e.target.value })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-bold">今月の重点パーソナル健康テーマ</label>
+                    <input
+                      type="text"
+                      placeholder="例：首肩こり根絶＆美姿勢、自律神経調律"
+                      value={profile.personalTheme}
+                      onChange={(e) => setProfile({ ...profile, personalTheme: e.target.value })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-bold">達成したい自分へのご褒美</label>
+                    <input
+                      type="text"
+                      placeholder="例：高級スイーツ、温泉旅行、好きな漫画"
+                      value={profile.targetReward}
+                      onChange={(e) => setProfile({ ...profile, targetReward: e.target.value })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setShowProfileModal(false)}
+                  className="mt-4 w-full py-2.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold text-xs rounded-xl"
+                >
+                  設定を保存して閉じる
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 4. 自己肯定感チャージステーション */}
+          {showMotivationModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border-2 border-rose-500/60 w-full max-w-md rounded-3xl p-5 shadow-2xl flex flex-col">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                  <div className="flex items-center gap-1.5 text-rose-400 font-bold text-sm">
+                    <Icon name="heart" className="w-4 h-4 text-rose-400" fill="currentColor" />
+                    <span>自己肯定感チャージステーション</span>
+                  </div>
+                  <button onClick={() => setShowMotivationModal(false)} className="p-1 rounded-xl bg-slate-800 text-slate-400">
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="mt-3 p-4 bg-gradient-to-b from-rose-950/30 to-purple-950/30 border border-rose-500/20 rounded-2xl text-center">
+                  <div className="text-3xl mb-2">🌸</div>
+                  <p className="text-xs sm:text-sm font-bold text-slate-100 leading-relaxed whitespace-pre-wrap">
+                    {activeQuote}
+                  </p>
+                </div>
+
+                <div className="mt-3 p-3 bg-slate-800/80 rounded-2xl border border-slate-700">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-rose-300 mb-1">
+                    <span>今すぐ自分にあげたいご褒美アイデア</span>
+                    <button
+                      onClick={() => setRewardIndex((rewardIndex + 1) % REWARD_IDEAS.length)}
+                      className="text-amber-300 hover:underline"
+                    >
+                      チェンジ ↻
+                    </button>
+                  </div>
+                  <div className="text-xs text-slate-200 flex items-center gap-2">
+                    <span className="text-xl">{REWARD_IDEAS[rewardIndex].emoji}</span>
+                    <span>{REWARD_IDEAS[rewardIndex].text}</span>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex gap-2">
+                  <button
+                    onClick={() => {
+                      const nextQ = MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
+                      setActiveQuote(nextQ);
+                    }}
+                    className="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl"
+                  >
+                    もっと褒めて！
+                  </button>
+                  <button
+                    onClick={() => setShowMotivationModal(false)}
+                    className="flex-1 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold text-xs rounded-xl shadow-md active:scale-95"
+                  >
+                    元気が出た！
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Report Modal */}
+          {showReportModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-5 shadow-2xl flex flex-col max-h-[88vh]">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
+                    <Icon name="sparkles" className="w-4 h-4" />
+                    <span>自己肯定感＆実生活配当 確定報告書</span>
+                  </div>
+                  <button onClick={() => setShowReportModal(false)} className="p-1 rounded-xl bg-slate-800 text-slate-400">
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="mt-3 flex-1 overflow-y-auto bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-xs text-slate-200 whitespace-pre-wrap leading-relaxed">
+                  {generateReportForDate(getTodayString())}
+                </div>
+                <div className="mt-3 pt-2 border-t border-slate-800 flex items-center gap-2">
+                  <button
+                    onClick={() => copyToClipboard(generateReportForDate(getTodayString()))}
+                    className="flex-1 py-2.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold text-xs rounded-xl flex items-center justify-center gap-2 active:scale-95"
+                  >
+                    <Icon name="copy" className="w-4 h-4" />
+                    <span>{copyFeedback ? 'コピー完了！' : '全文をコピーする'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* History Modal */}
+          {showHistoryModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-5 shadow-2xl flex flex-col max-h-[88vh]">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-2 text-amber-300 font-bold text-sm">
+                    <Icon name="book-open" className="w-4 h-4" />
+                    <span>過去実績＆報告文アーカイブ</span>
+                  </div>
+                  <button onClick={() => setShowHistoryModal(false)} className="p-1 rounded-xl bg-slate-800 text-slate-400">
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="mt-3 flex-1 overflow-y-auto space-y-4 pr-1">
+                  <div className="bg-gradient-to-r from-amber-950/40 to-orange-950/40 border border-amber-500/30 rounded-2xl p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                        <Icon name="trophy" className="w-3.5 h-3.5 text-amber-400" />
+                        <span>歴代ベストデイ TOP 3</span>
+                      </h4>
+                      <span className="text-[11px] font-bold text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-500/30">
+                        本日: +{todayEarnedExp} EXP
+                      </span>
+                    </div>
+
+                    <div className="mb-2.5 p-2 bg-slate-900/90 rounded-xl border border-amber-500/30 text-xs font-bold text-amber-200 flex items-center gap-1.5">
+                      <span>🎯</span>
+                      <span>現在の目標：<strong>{rankingTargetInfo.text}</strong></span>
+                    </div>
+
+                    {(!savedReports || savedReports.length === 0) ? (
+                      <p className="text-[11px] text-slate-400 py-1">24時の自動確定を迎えると、ここに歴代最高記録が自動集計されます。</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {[...savedReports].sort((a, b) => (Number(b.totalExpEarned) || 0) - (Number(a.totalExpEarned) || 0)).slice(0, 3).map((rep, idx) => (
+                          <div
+                            key={idx}
+                            onClick={() => setViewingReport(rep)}
+                            className="bg-slate-900/80 hover:bg-slate-900/95 p-2.5 rounded-xl border border-slate-700 hover:border-amber-500/50 flex items-center justify-between cursor-pointer transition-all active:scale-[0.99] shadow-sm"
+                            title="タップして報告文を閲覧"
+                          >
+                            <div>
+                              <div className="text-xs font-bold text-slate-200 flex items-center gap-1">
+                                <span>{idx === 0 ? '🥇 1位' : idx === 1 ? '🥈 2位' : '🥉 3位'}: {rep.date}</span>
+                              </div>
+                              <div className="text-[10px] text-amber-300">
+                                獲得 {rep.totalExpEarned} EXP {rep.completedCount ? `（達成 ${rep.completedCount} 回）` : ''}
+                              </div>
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewingReport(rep);
+                              }}
+                              className="px-2.5 py-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 rounded-xl text-xs font-bold border border-amber-500/40 flex items-center gap-1 shadow-sm active:scale-95"
+                            >
+                              <Icon name="book-open" className="w-3.5 h-3.5 text-amber-400" />
+                              <span>閲覧</span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                      <Icon name="calendar" className="w-3.5 h-3.5 text-sky-400" />
+                      <span>直近1週間の確定ログ</span>
+                    </h4>
+                    {(!savedReports || savedReports.length === 0) ? (
+                      <p className="text-[11px] text-slate-400 bg-slate-800/40 p-3 rounded-xl">記録がまだありません。</p>
+                    ) : (
+                      savedReports.slice(0, 7).map((rep, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => setViewingReport(rep)}
+                          className="bg-slate-800/70 hover:bg-slate-800 border border-slate-700/70 hover:border-sky-500/40 p-3 rounded-2xl flex items-center justify-between cursor-pointer transition-all active:scale-[0.99] shadow-sm"
+                          title="タップして報告文を閲覧"
+                        >
+                          <div>
+                            <div className="text-xs font-bold text-slate-200">{rep.date}</div>
+                            <div className="text-[11px] text-slate-400 mt-0.5">
+                              獲得 <strong className="text-amber-300 font-mono">+{rep.totalExpEarned}</strong> EXP
+                              {rep.completedCount ? <span className="ml-1 text-[10px] text-slate-500">（達成 {rep.completedCount}回）</span> : null}
+                            </div>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewingReport(rep);
+                            }}
+                            className="px-3 py-1.5 bg-sky-950/80 hover:bg-sky-900 border border-sky-400/50 text-sky-300 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95"
+                          >
+                            <Icon name="book-open" className="w-3.5 h-3.5 text-sky-400" />
+                            <span>報告文を読む</span>
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 過去報告文の全文閲覧モーダル */}
+          {viewingReport && (
+            <div className="fixed inset-0 z-[65] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-amber-500/40 w-full max-w-lg rounded-3xl p-5 shadow-2xl flex flex-col max-h-[90vh]">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-2 text-amber-300 font-bold text-sm min-w-0">
+                    <Icon name="book-open" className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span className="truncate">【{viewingReport.date}】の確定報告書</span>
+                  </div>
+                  <button
+                    onClick={() => setViewingReport(null)}
+                    className="p-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 shrink-0"
+                  >
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between bg-slate-800/60 px-3.5 py-2 rounded-xl border border-slate-700/60 text-xs">
+                  <span className="text-slate-400">実績サマリー</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-300 font-bold font-mono">+{viewingReport.totalExpEarned} EXP</span>
+                    {viewingReport.completedCount ? (
+                      <span className="text-slate-400 text-[11px]">（計 {viewingReport.completedCount} 回達成）</span>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="mt-3 flex-1 overflow-y-auto bg-slate-950/90 border border-slate-800 rounded-2xl p-4 font-mono text-xs text-slate-200 whitespace-pre-wrap leading-relaxed shadow-inner">
+                  {viewingReport.reportText}
+                </div>
+
+                <div className="mt-3 pt-2 border-t border-slate-800 flex items-center gap-2">
+                  <button
+                    onClick={() => copyToClipboard(viewingReport.reportText)}
+                    className="flex-1 py-2.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold text-xs rounded-xl flex items-center justify-center gap-2 active:scale-95 shadow-md"
+                  >
+                    <Icon name="copy" className="w-4 h-4" />
+                    <span>{copyFeedback ? 'コピー完了！' : 'この報告文をコピーする'}</span>
+                  </button>
+                  <button
+                    onClick={() => setViewingReport(null)}
+                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl"
+                  >
+                    閉じる
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 習慣編集モーダル */}
+          {editingTask && (
+            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 shadow-2xl">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h3 className="text-sm font-bold text-slate-100 flex items-center gap-1.5">
+                    <Icon name="edit" className="w-4 h-4 text-amber-400" />
+                    <span>習慣タスクの編集</span>
+                  </h3>
+                  <button onClick={() => setEditingTask(null)} className="p-1 rounded-xl bg-slate-800 text-slate-400">
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-3 mt-3 text-xs">
+                  <div>
+                    <label className="block text-slate-400 mb-1">絵文字アイコン</label>
+                    <input
+                      type="text"
+                      value={editingTask.emoji || '✨'}
+                      onChange={(e) => setEditingTask({ ...editingTask, emoji: e.target.value })}
+                      className="w-16 text-center text-xl bg-slate-800 border border-slate-700 rounded-xl p-2 text-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 mb-1">タスク名</label>
+                    <input
+                      type="text"
+                      value={editingTask.name || ''}
+                      onChange={(e) => setEditingTask({ ...editingTask, name: e.target.value })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1 flex items-center gap-1">
+                      <Icon name="link" className="w-3.5 h-3.5 text-sky-400" />
+                      <span>参考リンクURL（任意）</span>
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://... （YouTube、Notion等）"
+                      value={editingTask.linkUrl || ''}
+                      onChange={(e) => setEditingTask({ ...editingTask, linkUrl: e.target.value })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100 text-xs focus:border-sky-400"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-slate-400 mb-1">基本EXP</label>
+                      <input
+                        type="number"
+                        value={editingTask.exp ?? 10}
+                        onChange={(e) => setEditingTask({ ...editingTask, exp: Number(e.target.value) })}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-400 mb-1">ボーナス追加EXP</label>
+                      <input
+                        type="number"
+                        value={editingTask.bonusExp ?? 5}
+                        onChange={(e) => setEditingTask({ ...editingTask, bonusExp: Number(e.target.value) })}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1">ボーナス達成条件名</label>
+                    <input
+                      type="text"
+                      placeholder="例：食後すぐ、丁寧に仕上げた"
+                      value={editingTask.bonusText || ''}
+                      onChange={(e) => setEditingTask({ ...editingTask, bonusText: e.target.value })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                  <button
+                    onClick={() => {
+                      setHabits(prev => prev.filter(h => h.id !== editingTask.id));
+                      setEditingTask(null);
+                    }}
+                    className="px-3 py-2 bg-rose-500/20 text-rose-300 rounded-xl text-xs font-bold"
+                  >
+                    削除
+                  </button>
+                  <button
+                    onClick={() => {
+                      setHabits(prev => {
+                        const exists = prev.some(h => h.id === editingTask.id);
+                        if (exists) return prev.map(h => (h.id === editingTask.id ? editingTask : h));
+                        return [editingTask, ...prev];
+                      });
+                      setEditingTask(null);
+                    }}
+                    className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold rounded-xl text-xs"
+                  >
+                    保存する
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 定期メンテ新規登録・編集モーダル（完全修復） */}
+          {editingMaintenance && (
+            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 shadow-2xl flex flex-col max-h-[92vh] overflow-y-auto">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h3 className="text-sm font-bold text-slate-100 flex items-center gap-1.5">
+                    <Icon name={editingMaintenance.id ? "edit" : "plus"} className="w-4 h-4 text-amber-400" />
+                    <span>{editingMaintenance.id ? '定期メンテ／臨時タスクの編集' : '定期メンテ／臨時タスクの新規登録'}</span>
+                  </h3>
+                  <button
+                    onClick={() => setEditingMaintenance(null)}
+                    className="p-1 rounded-xl bg-slate-800 text-slate-400"
+                  >
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSaveMaintenance(editingMaintenance);
+                  }}
+                  className="space-y-3 mt-3 text-xs"
+                >
+                  <div>
+                    <label className="block text-slate-400 mb-1">管理タイプ</label>
+                    <select
+                      value={editingMaintenance.type || 'cycle'}
+                      onChange={(e) => setEditingMaintenance({ ...editingMaintenance, type: e.target.value })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                    >
+                      <option value="cycle">サイクル型（X日ごと相対管理）</option>
+                      <option value="monthly">毎月固定日型（毎月1日など）</option>
+                      <option value="single">1回きり臨時タスク（単発ミッション）</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1">タスク名</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="例：エアコンフィルター清掃、粗大ゴミ申込"
+                      value={editingMaintenance.name || ''}
+                      onChange={(e) => setEditingMaintenance({ ...editingMaintenance, name: e.target.value })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-slate-400 mb-1">絵文字アイコン</label>
+                      <input
+                        type="text"
+                        value={editingMaintenance.emoji || '🧹'}
+                        onChange={(e) => setEditingMaintenance({ ...editingMaintenance, emoji: e.target.value })}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100 text-center text-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-400 mb-1">獲得EXP</label>
+                      <input
+                        type="number"
+                        value={editingMaintenance.exp ?? 30}
+                        onChange={(e) => setEditingMaintenance({ ...editingMaintenance, exp: Number(e.target.value) })}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                      />
+                    </div>
+                  </div>
+
+                  {editingMaintenance.type === 'cycle' && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-slate-400 mb-1">サイクル目安 (日)</label>
+                        <input
+                          type="number"
+                          min={1}
+                          value={editingMaintenance.cycleDays ?? 14}
+                          onChange={(e) => setEditingMaintenance({ ...editingMaintenance, cycleDays: Number(e.target.value) })}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 mb-1">前回実施日</label>
+                        <input
+                          type="date"
+                          value={editingMaintenance.lastDoneDate || getTodayString()}
+                          onChange={(e) => setEditingMaintenance({ ...editingMaintenance, lastDoneDate: e.target.value })}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {editingMaintenance.type === 'monthly' && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-slate-400 mb-1">毎月指定日 (1〜31日)</label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={31}
+                          value={editingMaintenance.fixedDay ?? 1}
+                          onChange={(e) => setEditingMaintenance({ ...editingMaintenance, fixedDay: Number(e.target.value) })}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 mb-1">前回実施日</label>
+                        <input
+                          type="date"
+                          value={editingMaintenance.lastDoneDate || getTodayString()}
+                          onChange={(e) => setEditingMaintenance({ ...editingMaintenance, lastDoneDate: e.target.value })}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {editingMaintenance.type === 'single' && (
+                    <div className="space-y-2">
+                      <div>
+                        <label className="block text-slate-400 mb-1">締切期日</label>
+                        <input
+                          type="date"
+                          value={editingMaintenance.dueDate || ''}
+                          onChange={(e) => setEditingMaintenance({ ...editingMaintenance, dueDate: e.target.value })}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 pt-1">
+                        <input
+                          type="checkbox"
+                          id="edit-maint-completed"
+                          checked={Boolean(editingMaintenance.completed)}
+                          onChange={(e) => setEditingMaintenance({ ...editingMaintenance, completed: e.target.checked })}
+                          className="w-4 h-4 rounded bg-slate-800 border-slate-700 text-amber-500 focus:ring-0"
+                        />
+                        <label htmlFor="edit-maint-completed" className="text-slate-300">
+                          完了状態にする
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {editingMaintenance.id && (
+                    <div>
+                      <label className="block text-slate-400 mb-1">通算実施回数</label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={editingMaintenance.totalCount ?? 0}
+                        onChange={(e) => setEditingMaintenance({ ...editingMaintenance, totalCount: Number(e.target.value) })}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                      />
+                    </div>
+                  )}
+
+                  <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
+                    {editingMaintenance.id ? (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteMaintenance(editingMaintenance.id)}
+                        className="px-3 py-2 bg-rose-500/20 text-rose-300 rounded-xl text-xs font-bold"
+                      >
+                        削除
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setEditingMaintenance(null)}
+                        className="px-4 py-2 bg-slate-800 text-slate-400 rounded-xl"
+                      >
+                        キャンセル
+                      </button>
+                    )}
+                    <button
+                      type="submit"
+                      className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold rounded-xl text-xs active:scale-95 transition-all"
+                    >
+                      {editingMaintenance.id ? '変更を保存' : '登録する'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* 金字塔モーダル */}
+          {milestoneModalData && (
+            <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+              <div className="bg-slate-900 border-2 border-amber-400/80 w-full max-w-md rounded-3xl p-5 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto">
+                <div className="text-center pt-2">
+                  <div className="text-3xl mb-1">{milestoneModalData.emoji}</div>
+                  <div className="text-xs font-black text-amber-400 uppercase tracking-widest">
+                    🎉 金字塔達成！通算 {milestoneModalData.totalCount} 回突破 🎉
+                  </div>
+                  <h3 className="text-lg font-black text-white mt-1">
+                    「{milestoneModalData.taskName}」の達人
+                  </h3>
+                  {milestoneModalData.stageName && (
+                    <div className="inline-block mt-1 px-3 py-0.5 bg-indigo-950 border border-indigo-400/50 rounded-full text-[10px] font-bold text-indigo-300">
+                      🧬 新フェーズ到達: {milestoneModalData.stageName}
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-3 bg-slate-800/80 border border-slate-700 rounded-2xl p-3.5">
+                  <div className="text-xs font-bold text-amber-300 mb-1">
+                    {milestoneModalData.dividendTitle}
+                  </div>
+                  <p className="text-xs text-slate-200 leading-relaxed font-medium">
+                    {milestoneModalData.dividendDesc}
+                  </p>
+                </div>
+
+                <div className="mt-3 bg-sky-950/40 border border-sky-500/30 rounded-2xl p-3.5">
+                  <div className="text-xs font-bold text-sky-300 mb-1 flex items-center gap-1.5">
+                    <span>🔬 今回の節目で確定した生体変容うんちく</span>
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    {milestoneModalData.trivia}
+                  </p>
+                </div>
+
+                {milestoneModalData.dailyPoint && (
+                  <div className="mt-2.5 bg-amber-950/30 border border-amber-500/30 rounded-xl p-2.5 text-xs text-slate-300">
+                    <span className="text-amber-400 font-bold">🎯 実践アドバイス：</span><br />
+                    {milestoneModalData.dailyPoint}
+                  </div>
+                )}
+
+                <button
+                  onClick={() => setMilestoneModalData(null)}
+                  className="mt-4 w-full py-2.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs rounded-xl shadow-lg active:scale-95"
+                >
+                  誇らしく身体の進化を受け取る！
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Settings Modal */}
+          {showSettingsModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 shadow-2xl">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h3 className="text-sm font-bold text-slate-100 flex items-center gap-1.5">
+                    <Icon name="settings" className="w-4 h-4 text-amber-400" />
+                    <span>データ保護・アプリ設定</span>
+                  </h3>
+                  <button onClick={() => setShowSettingsModal(false)} className="p-1 rounded-xl bg-slate-800 text-slate-400">
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-3 mt-4 text-xs">
+                  <button
+                    onClick={() => setShowInstallGuideModal(true)}
+                    className="w-full py-2.5 px-3 bg-gradient-to-r from-amber-500/20 to-indigo-600/30 border border-amber-400/40 rounded-xl text-amber-200 font-bold text-xs"
+                  >
+                    📱 iPhoneで完全専用アプリ化する手順（1分）
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const data = {
+                        schemaVersion: CURRENT_SCHEMA_VERSION,
+                        totalExp,
+                        habits,
+                        maintenance,
+                        adhocLogs,
+                        completedQuests,
+                        adoptedSuggestions,
+                        savedReports,
+                        profile,
+                        lastActiveDate
+                      };
+                      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `habit-backup-${getTodayString()}.json`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                    className="w-full py-2.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl font-bold flex items-center justify-center gap-2 text-slate-100"
+                  >
+                    <Icon name="download" className="w-4 h-4 text-amber-400" />
+                    <span>JSONバックアップをダウンロード</span>
+                  </button>
+
+                  <label className="w-full py-2.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer text-slate-100">
+                    <Icon name="upload" className="w-4 h-4 text-sky-400" />
+                    <span>JSONバックアップから安全復元</span>
+                    <input
+                      type="file"
+                      accept=".json"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const r = new FileReader();
+                        r.onload = (evt) => {
+                          try {
+                            const rawParsed = JSON.parse(evt.target.result);
+                            const safe = sanitizeAppState(rawParsed);
+
+                            setHabits(safe.habits);
+                            setTotalExp(safe.totalExp);
+                            setMaintenance(safe.maintenance);
+                            setSavedReports(safe.savedReports);
+                            setAdhocLogs(safe.adhocLogs);
+                            setCompletedQuests(safe.completedQuests);
+                            setAdoptedSuggestions(safe.adoptedSuggestions);
+                            setProfile(safe.profile);
+                            setLastActiveDate(safe.lastActiveDate);
+
+                            setShowSettingsModal(false);
+                            setRecoveryToast('🎉 データを正常に引き継ぎ、安全に復元しました！');
+                            setTimeout(() => setRecoveryToast(null), 3500);
+                          } catch (err) {
+                            setRecoveryToast('⚠️ ファイルの形式が不正です。正しいJSONファイルを選択してください。');
+                          }
+                        };
+                        r.readAsText(file);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+
+                  <div className="pt-2 border-t border-slate-800">
+                    <button
+                      onClick={() => {
+                        try {
+                          localStorage.removeItem(STORAGE_KEY);
+                          setHabits(INITIAL_HABITS);
+                          setMaintenance(INITIAL_MAINTENANCE);
+                          setSavedReports(INITIAL_SAVED_REPORTS);
+                          setTotalExp(140);
+                          setAdhocLogs([]);
+                          setProfile(sanitizeProfile(null));
+                          setShowSettingsModal(false);
+                          setRecoveryToast('初期プリセットに安全リセットしました。');
+                          setTimeout(() => setRecoveryToast(null), 3000);
+                        } catch (err) {}
+                      }}
+                      className="w-full py-2 text-rose-400 hover:text-rose-300 text-[11px] text-center"
+                    >
+                      初期状態にクリーンリセット
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* iPhone App Guide Modal */}
+          {showInstallGuideModal && (
+            <div className="fixed inset-0 z-[60] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-amber-500/40 w-full max-w-md rounded-3xl p-5 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <div className="text-sm font-bold text-amber-300">iPhone専用アプリ化（約1分）</div>
+                  <button onClick={() => setShowInstallGuideModal(false)} className="p-1 rounded-xl bg-slate-800 text-slate-400">
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="mt-3 space-y-2.5 text-xs text-slate-300 leading-relaxed">
+                  <div className="p-2.5 bg-slate-800/80 rounded-xl border border-slate-700">
+                    <strong className="text-amber-300">1. ファイルを保存:</strong><br />
+                    画面のコード枠またはダウンロードボタンからこの `index.html` を保存します。
+                  </div>
+                  <div className="p-2.5 bg-slate-800/80 rounded-xl border border-slate-700">
+                    <strong className="text-amber-300">2. tiiny.host を開く:</strong><br />
+                    Safariで無料ホスティング <a href="https://tiiny.host" target="_blank" className="text-amber-400 underline">tiiny.host</a> を開きます。
+                  </div>
+                  <div className="p-2.5 bg-slate-800/80 rounded-xl border border-slate-700">
+                    <strong className="text-amber-300">3. アップロード:</strong><br />
+                    index.html を選択して Publish を押すと数秒で専用URLが発行されます。
+                  </div>
+                  <div className="p-2.5 bg-slate-800/80 rounded-xl border border-slate-700">
+                    <strong className="text-amber-300">4. ホーム画面に追加:</strong><br />
+                    Safariの共有ボタン（⎋）から「ホーム画面に追加」を押せば、全画面の専用アプリが完成します。
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    );
+  </script>
+</body>
+</html>
