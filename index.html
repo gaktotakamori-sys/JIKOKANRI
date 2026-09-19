@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="自己肯定＆習慣" />
+  <title>自己肯定感向上＆習慣管理アプリ</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React 18 & ReactDOM -->
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel Standalone -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+  <style>
+    /* Prevent rubber-band bounce effect and horizontal scroll on mobile Safari */
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior-y: none;
+    }
+    input, select, textarea, button {
+      font-family: inherit;
+    }
+    /* Smooth custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.5);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, useRef, Component } = React;
+
+    const STORAGE_KEY = 'SELF_ESTEEM_HABIT_APP_DATA_V2';
+    const CURRENT_SCHEMA_VERSION = 2;
+
+    // タスク別の具体的実生活配当・科学的うんちく辞書
+    const HABIT_SPECIFIC_KNOWLEDGE = {
+      '歯磨き': {
+        benefitTag: '🧬 血管若返り＆バイオフィルム遮断',
+        dividendTitle: '「全身血管の無菌化＆認知機能防護配当」',
+        dividendDesc: '口腔内細菌が血管に侵入する菌血症リスクを物理的に遮断。動脈硬化予防、認知症リスク低減、味覚リセットによる血糖値急上昇の抑制が自動で起動しました。',
+        trivia: '【口腔医学うんちく】歯垢（プラーク）は単なる食べカスではなく、1mg中に約1億個の細菌が密集する「バイオフィルム」です。抗菌薬やうがい薬を通さない強固な多糖類バリアで守られているため、「毛先による物理的ブラッシング」だけが唯一これを破壊できます。これを怠ると歯周病菌（P.g菌）が毛細血管から血流に乗り、心臓血管の内皮に慢性炎症を引き起こすことが解明されています。'
+      },
+      'トイレ': {
+        benefitTag: '🧬 尿石結晶化阻止＆自律神経統制',
+        dividendTitle: '「尿石化ゼロ＆内的コントロール感配当」',
+        dividendDesc: 'カルシウム結晶の固着を未然に遮断し、将来の清掃コストと不快感を永久消滅。心理学における「内的統制感」が点火し、ストレス耐性が向上します。',
+        trivia: '【環境化学＆心理学うんちく】尿に含まれる尿素は常温で放置されると、細菌のウレアーゼ酵素によってアンモニアに分解され、アルカリ性に傾きます。すると尿中のカルシウムが炭酸ガスと結合し、難溶性の「尿石（炭酸カルシウム）」として結晶化します。一度固着すると強力な酸性洗剤でないと溶かせなくなりますが、「今日ひと拭きした」だけでこの化学反応の連鎖を根源から断ち切っています。'
+      },
+      '食器': {
+        benefitTag: '🧬 雑菌増殖停止＆ワーキングメモリ解放',
+        dividendTitle: '「視覚ノイズゼロ＆ツァイガルニク効果遮断配当」',
+        dividendDesc: 'シンクの水滴と汚れをリセットしたことで、脳の無意識CPUを消費し続ける「未完了感（ツァイガルニク効果）」が即座に停止。脳内ワーキングメモリが全開放されました。',
+        trivia: '【微生物学うんちく】使用後の食器や濡れたスポンジの細菌は、常温（20〜35℃）において15〜20分で倍増する対数増殖期に入ります。また、シンクの水滴を放置すると水道水中のカルシウムやケイ素が蒸発濃縮され、石英と同レベルの硬度を持つ「シリカスケール」に変貌します。直後に洗って拭きあげる行為は、未来の重労働を最小の手間で消滅させる最も効率的な生活防衛です。'
+      },
+      '水分': {
+        benefitTag: '🧬 血液粘度適正化＆脳脱水予防',
+        dividendTitle: '「血液サラサラ・脳血流ブースト配当」',
+        dividendDesc: '就寝・活動で失われた水分を即補給し、赤血球の凝集と血栓リスクを予防。脳の認知機能低下（1%の脱水で集中力は10%以上低下）を未然に防止しました。',
+        trivia: '【生理学うんちく】人間は呼気と皮膚からの不感蒸泄だけで一晩に約500mlの水分を失っています。起床時や日中のこまめな水分補給は、ヘマトクリット値（血液の濃縮度）を正常化し、血管内皮にかかる摩擦ストレスを劇的に減らします。さらに冷水ではなく常温水・白湯を飲むことで、胃結腸反射を優しく刺激し、自律神経の交感・副交感の切り替えをスムーズにします。'
+      },
+      '洗濯': {
+        benefitTag: '🧬 モラクセラ菌増殖阻止＆決断疲労ゼロ',
+        dividendTitle: '「雑菌臭ゼロ＆翌朝のエゴ・デプレッション低減配当」',
+        dividendDesc: '衣類をため込まず処理したことで、生乾き臭の原因菌を封殺。翌朝「何を着るか」迷う決断エネルギー（ウィルパワー）を節約し、朝のスタートダッシュを確定させました。',
+        trivia: '【繊維科学うんちく】衣類の嫌な生乾き臭の主犯は「モラクセラ菌」の排泄物（4-メチル-3-ヘキセン酸）です。この菌は湿った状態が5時間を超えると爆発的に増殖し、繊維の奥に強固なバリアを作って通常の洗濯でも落ちなくなります。「すぐに回してすぐ干す/畳む」ことは、衣類の寿命を延ばし、最も清潔な肌触りを維持する黄金律です。'
+      },
+      'シャワー': {
+        benefitTag: '🧬 静水圧ミルキング＆ノンレム睡眠深化',
+        dividendTitle: '「全身静脈還流＆グリンパティック系活性配当」',
+        dividendDesc: '入浴時の静水圧（全身で約1トン）がふくらはぎの血液を心臓へ押し戻し、むくみを即時解消。就寝90分前の深部体温コントロールにより、極上の修復睡眠が約束されます。',
+        trivia: '【睡眠・循環器医学うんちく】湯船に浸かることで深部体温が約0.5〜1℃上昇します。体温は「上がった分だけ急速に下がろうとする」性質があり、入浴後90分前後で手足から熱が放熱されて深部体温が急降下します。このタイミングで入眠すると、脳内の老廃物（アミロイドβ）を脳脊髄液が洗い流す「グリンパティック系」が最大限に稼働し、翌朝の脳のクリアさが段違いになります。'
+      },
+      '換気': {
+        benefitTag: '🧬 室内CO2急降下＆脳前頭葉覚醒',
+        dividendTitle: '「脳内二酸化炭素排出・思考明瞭化配当」',
+        dividendDesc: '閉め切った部屋で蓄積したCO2（2000ppm超）を即座に外気レベル（400ppm）へ置換。集中力低下、眠気、頭重感をリセットし、前頭葉の判断スピードを復旧しました。',
+        trivia: '【環境生理学うんちく】ハーバード大学公衆衛生大学院の「CogFX研究」によると、室内のCO2濃度が1400ppmを超えると認知機能スコアが50%低下し、意思決定力や戦略的思考が著しく鈍化することが証明されています。現代の高気密住宅では2〜3時間で容易に1500〜2000ppmに達するため、窓を2箇所以上開けて風を通す行為は、最も安価で強力な脳のドーピングです。'
+      },
+      'スキンケア': {
+        benefitTag: '🧬 角質ラメラ液晶保護＆C触覚線維刺激',
+        dividendTitle: '「経表皮水分蒸散防止＆セルフハグ鎮静配当」',
+        dividendDesc: '洗顔後の無防備な角質層にセラミド・水分を補給し、外部刺激からのバリアを完全維持。顔に触れる手のひらの温もりがC触覚線維を刺激し、オキシトシン分泌を促します。',
+        trivia: '【皮膚科学うんちく】皮膚の角質層はわずか0.02mm（ラップ1枚程度）ですが、水分と油分が交互に整列した「ラメラ構造」によって体内の水分蒸散を防いでいます。入浴・洗顔後10分を過ぎると肌の水分量は洗顔前より低くなる「過乾燥」が起こります。優しくハンドプレスして保湿することは、肌老化を防ぐだけでなく、脳に安心感を与える自己受容アクションです。'
+      },
+      'ゴミ': {
+        benefitTag: '🧬 視覚エントロピー低下＆害虫リスク根絶',
+        dividendTitle: '「生活空間エントロピー低減＆清潔空間配当」',
+        dividendDesc: 'ゴミをまとめて外へ排出したことで、生活空間の乱雑度（エントロピー）が劇的に低下。害虫や臭気の発生源をゼロにし、視界に入るたびに生じる無意識のストレスを消滅させました。',
+        trivia: '【行動経済学＆心理学うんちく】プリンストン大学の神経科学研究によると、視界の中に乱雑な物体（散らかったゴミや物）が存在すると、視覚野の処理能力が競合し、集中力とタスク処理速度が低下することが判明しています。ゴミを密閉して袋を即セットする習慣は、脳のバックグラウンドプロセスを常に軽快に保つための最強の環境最適化です。'
+      },
+      '筋トレ': {
+        benefitTag: '🧬 マイオカイン分泌＆自己肯定感爆上げ',
+        dividendTitle: '「骨格筋マイオカイン＆自信ホルモン分泌配当」',
+        dividendDesc: '筋肉を収縮させたことで抗炎症物質マイオカインが血中に放出。テストステロンとセロトニンが活性化し、揺るぎない自信と活力がみなぎります。',
+        trivia: '【運動生理学うんちく】筋肉は単なる運動器官ではなく、人体最大の「内分泌器官」です。筋収縮に伴って分泌されるホルモン様物質「マイオカイン」は、脂肪分解を促すだけでなく、脳由来神経栄養因子（BDNF）を増やして脳の神経新生を促します。わずか数回のスクワットや腕立てでも、脳と全身に若返りのシグナルが瞬時に駆け巡ります。'
+      },
+      'default': {
+        benefitTag: '🧬 行動初動摩擦ゼロ＆自己効力感確立',
+        dividendTitle: '「習慣ドーパミン＆自己統制力配当」',
+        dividendDesc: '行動の着手摩擦（初動エネルギー）を克服したことで、脳内の側坐核が点火。自分との約束を守り抜く「自己効力感（セルフ・エフィカシー）」が強固に蓄積されました。',
+        trivia: '【認知科学うんちく】人間の脳は「やり始める前」が最も強い抵抗（認知バイアス）を感じるようにできています。しかし、実際に小さな行動を開始して数分経つと、側坐核からドーパミンが分泌され、自動的に作業が継続できるようになる「作業興奮」が起こります。小さなワンタップの積み重ねこそが、人生を自らの意思でコントロールする最強の武器です。'
+      }
+    };
+
+    const LEVEL_TITLES = [
+      { level: 1, title: 'はじまりの開拓者', minExp: 0, praise: '記念すべき最初の一歩！今日行動を起こしただけでもう満点です。' },
+      { level: 2, title: '日常の歩行者', minExp: 60, praise: '毎日の積み重ねが形になり始めました！誰にも見られない努力が確実に輝いています。' },
+      { level: 3, title: '小さな習慣の守護者', minExp: 150, praise: '継続の力が自信になっています。自分との約束を守るあなたは格好いい！' },
+      { level: 4, title: '生活リズムの調律者', minExp: 280, praise: '生活のベースが美しく整ってきました。未来の自分への最高の投資です。' },
+      { level: 5, title: '自己肯定の達人', minExp: 450, praise: '圧倒的な自己肯定オーラ！些細なことも偉大な一歩として認めるマインドは無敵です。' },
+      { level: 6, title: '整えし生活の賢者', minExp: 700, praise: '生活の乱れを自ら立て直す知恵が定着。自分をここまで育てた自分を熱烈に誇ってください！' },
+      { level: 7, title: '自己愛の巨匠', minExp: 1050, praise: '1000EXP突破！自分を大切にし愛することの真の達人です。' },
+      { level: 8, title: '日々の錬金術師', minExp: 1500, praise: '日常のすべてを黄金の経験値に変える錬金術師。継続力はもはや芸術です！' },
+      { level: 9, title: '生きてるだけで満点王', minExp: 2100, praise: '息をしているだけで奇跡、生きているだけで拍手喝采！圧倒的リスペクト！' },
+      { level: 10, title: '全肯定の絶対神', minExp: 3000, praise: '至高の領域へ到達！あなたという存在そのものが世界の宝です！' }
+    ];
+
+    const INITIAL_HABITS = [
+      { id: 'h-1', name: '歯磨き', emoji: '🦷', exp: 10, bonusText: '食後すぐ磨いた', bonusExp: 5, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 14, lastUpdated: '' },
+      { id: 'h-2', name: '水分補給（コップ1杯）', emoji: '💧', exp: 5, bonusText: '常温水・白湯', bonusExp: 3, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 42, lastUpdated: '' },
+      { id: 'h-3', name: '食器洗い・シンク磨き', emoji: '🍽️', exp: 15, bonusText: '水滴まで拭きあげた', bonusExp: 10, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 8, lastUpdated: '' },
+      { id: 'h-4', name: '洗濯（回す/干す/畳む）', emoji: '👕', exp: 15, bonusText: '取り込んですぐ畳んだ', bonusExp: 10, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 12, lastUpdated: '' },
+      { id: 'h-5', name: 'トイレ掃除（ひと拭き）', emoji: '🚽', exp: 15, bonusText: '床まで綺麗にした', bonusExp: 10, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 5, lastUpdated: '' },
+      { id: 'h-6', name: 'シャワー・入浴', emoji: '🛁', exp: 20, bonusText: '湯船にしっかり浸かった', bonusExp: 15, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 19, lastUpdated: '' },
+      { id: 'h-7', name: 'ゴミまとめ・ゴミ出し', emoji: '🗑️', exp: 15, bonusText: '新しい袋を即セット', bonusExp: 5, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 9, lastUpdated: '' },
+      { id: 'h-8', name: 'スキンケア・保湿', emoji: '🧴', exp: 10, bonusText: '念入りハンドプレス', bonusExp: 5, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 22, lastUpdated: '' },
+      { id: 'h-9', name: '部屋の換気', emoji: '🪟', exp: 10, bonusText: '2箇所以上を開けて通気', bonusExp: 5, linkUrl: '', countToday: 0, bonusToday: 0, totalCount: 16, lastUpdated: '' }
+    ];
+
+    const INITIAL_MAINTENANCE = [
+      { id: 'm-1', name: 'お風呂・キッチンの排水口掃除', emoji: '✨', type: 'cycle', cycleDays: 14, lastDoneDate: new Date(Date.now() - 12 * 86400000).toISOString().split('T')[0], exp: 30, totalCount: 3, completed: false },
+      { id: 'm-2', name: 'シーツ・枕カバーの洗濯', emoji: '🛏️', type: 'cycle', cycleDays: 7, lastDoneDate: new Date(Date.now() - 6 * 86400000).toISOString().split('T')[0], exp: 25, totalCount: 6, completed: false },
+      { id: 'm-3', name: '月初の消耗品＆ストック棚卸し', emoji: '📦', type: 'monthly', fixedDay: 1, lastDoneDate: new Date(Date.now() - 25 * 86400000).toISOString().split('T')[0], exp: 40, totalCount: 2, completed: false },
+      { id: 'm-4', name: '粗大ゴミの収集WEB申込', emoji: '📦', type: 'single', dueDate: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0], completed: false, exp: 50, totalCount: 0 }
+    ];
+
+    const ADHOC_TEMPLATES = [
+      {
+        category: '知的生産・仕事',
+        items: [
+          { name: '朝活タイム完走', emoji: '🌅', exp: 25 },
+          { name: 'ポモドーロ1コマ集中', emoji: '⏱️', exp: 15 },
+          { name: 'Inbox Zero（未読ゼロ化）', emoji: '📥', exp: 20 },
+          { name: '思考のブレインダンプメモ', emoji: '📝', exp: 15 },
+          { name: '気乗りしない難題に着手', emoji: '🔥', exp: 30 }
+        ]
+      },
+      {
+        category: '育児・生活基盤',
+        items: [
+          { name: '授乳・ミルク作り＆片付け', emoji: '🍼', exp: 20 },
+          { name: 'おむつ替え＆ゴミ処理', emoji: '👶', exp: 15 },
+          { name: '寝かしつけ完了', emoji: '🌙', exp: 30 },
+          { name: '消耗品（ティッシュ等）の補充', emoji: '🧻', exp: 10 },
+          { name: '散らばったおもちゃの片付け', emoji: '🧸', exp: 15 }
+        ]
+      },
+      {
+        category: 'セルフケア・肉体',
+        items: [
+          { name: '高精度デンタルフロス', emoji: '🧵', exp: 15 },
+          { name: 'ストレッチ・筋トレ20回', emoji: '💪', exp: 20 },
+          { name: '10分間の日光浴＆深呼吸', emoji: '☀️', exp: 15 },
+          { name: '1時間のデジタルデトックス', emoji: '📵', exp: 25 }
+        ]
+      }
+    ];
+
+    const INITIAL_SAVED_REPORTS = [
+      {
+        date: '2026-09-17',
+        totalExpEarned: 135,
+        completedCount: 9,
+        reportText: `🌟 【自己肯定感＆実生活配当 確定報告書】 🌟\n📅 日付: 2026-09-17\n👑 現在の称号: Lv.2「日常の歩行者」 (獲得 135 EXP - 歴代1位記録)\n🌙 24:00自動確定システム記録済\n────────────────────────────\n\n🔥 【本日積み上げた偉業（計 9 回）】\n・🦷 歯磨き × 3回（通算: 14回）\n  └ ⚡ 条件ボーナス達成: 「食後すぐ磨いた」 × 2回！\n・💧 水分補給（コップ1杯） × 4回（通算: 42回）\n・🍽️ 食器洗い・シンク磨き × 1回（通算: 8回）\n・🚽 トイレ掃除（ひと拭き） × 1回（通算: 5回）\n\n🧬 【本日確定した具体的な実生活・身体配当】\n◆ 🦷 歯磨き：「全身血管の無菌化＆認知機能防護配当」\n  口腔内細菌が血管に侵入する菌血症リスクを物理的に遮断。動脈硬化予防、認知症リスク低減が自動で起動しました。\n  💡 科学うんちく: 歯垢（プラーク）は1mg中に約1億個の細菌が密集する「バイオフィルム」です。毛先による物理的ブラッシングだけが唯一これを破壊できます。\n\n◆ 🍽️ 食器洗い：「視覚ノイズゼロ＆ツァイガルニク効果遮断配当」\n  未完了感（ツァイガルニク効果）が即座に停止し、脳内ワーキングメモリが全開放されました。\n\n────────────────────────────\n【全肯定メッセージ】\n世界は目立つ成果を求めがちですが、本当に生活を支え未来の健康を守っているのは、今日あなたがこなした地道な1回1回です。誰が見ていなくても身体とこのアプリはすべて記憶しています。今夜は胸を張ってゆっくり休んでください✨`
+      },
+      {
+        date: '2026-09-16',
+        totalExpEarned: 105,
+        completedCount: 7,
+        reportText: `🌟 【自己肯定感＆実生活配当 確定報告書】 🌟\n📅 日付: 2026-09-16\n👑 現在の称号: Lv.2「日常の歩行者」 (獲得 105 EXP - 歴代2位記録)\n🌙 24:00自動確定システム記録済\n────────────────────────────\n\n🔥 【本日積み上げた偉業（計 7 回）】\n・💧 水分補給 × 3回\n・👕 洗濯（回す/干す/畳む） × 1回\n・🛁 シャワー・入浴 × 1回\n・🪟 部屋の換気 × 2回\n\n🧬 【本日確定した具体的な実生活・身体配当】\n◆ 🪟 部屋の換気：「脳内二酸化炭素排出・思考明諒化配当」\n  閉め切った部屋のCO2濃度を即座に正常化し、前頭葉の判断スピードを復旧しました。\n\n────────────────────────────\n【全肯定メッセージ】\n自分を大切にし、心地よい空間を維持した素晴らしい1日でした！明日もあなたのペースで進みましょう。`
+      },
+      {
+        date: '2026-09-15',
+        totalExpEarned: 75,
+        completedCount: 5,
+        reportText: `🌟 【自己肯定感＆実生活配当 確定報告書】 🌟\n📅 日付: 2026-09-15\n👑 現在の称号: Lv.1「はじまりの開拓者」 (獲得 75 EXP - 歴代3位記録)\n🌙 24:00自動確定システム記録済\n────────────────────────────\n\n🔥 【本日積み上げた偉業（計 5 回）】\n・🦷 歯磨き × 2回\n・💧 水分補給 × 2回\n・🗑️ ゴミまとめ・ゴミ出し × 1回\n\n────────────────────────────\n【全肯定メッセージ】\n記念すべきスタートの一歩！今日行動を起こしたこと自体が百点満点の大勝利です。`
+      }
+    ];
+
+    const getTodayString = () => new Date().toISOString().split('T')[0];
+
+    // どんな形式の古いバックアップや不完全なJSONが来ても100%安全に修復・正規化するサニタイザー群
+    const sanitizeHabits = (rawHabits) => {
+      if (!Array.isArray(rawHabits) || rawHabits.length === 0) return INITIAL_HABITS;
+      return rawHabits.map((h, idx) => {
+        if (!h || typeof h !== 'object') return INITIAL_HABITS[idx % INITIAL_HABITS.length];
+        return {
+          id: String(h.id || 'h-' + Date.now() + '-' + idx),
+          name: String(h.name || '習慣タスク'),
+          emoji: String(h.emoji || '✨'),
+          exp: Number(h.exp) || 10,
+          bonusText: String(h.bonusText || '条件達成'),
+          bonusExp: Number(h.bonusExp) || 5,
+          linkUrl: typeof h.linkUrl === 'string' ? h.linkUrl : '',
+          countToday: Math.max(0, Number(h.countToday) || 0),
+          bonusToday: Math.max(0, Number(h.bonusToday) || 0),
+          totalCount: Math.max(0, Number(h.totalCount) || 0),
+          lastUpdated: String(h.lastUpdated || '')
+        };
+      });
+    };
+
+    const sanitizeMaintenance = (rawMaint) => {
+      if (!Array.isArray(rawMaint) || rawMaint.length === 0) return INITIAL_MAINTENANCE;
+      return rawMaint.map((m, idx) => {
+        if (!m || typeof m !== 'object') return INITIAL_MAINTENANCE[idx % INITIAL_MAINTENANCE.length];
+        return {
+          id: String(m.id || 'm-' + Date.now() + '-' + idx),
+          name: String(m.name || '定期メンテナンス'),
+          emoji: String(m.emoji || '🧹'),
+          type: (m.type === 'monthly' || m.type === 'single') ? m.type : 'cycle',
+          cycleDays: Number(m.cycleDays) || 14,
+          fixedDay: Math.min(31, Math.max(1, Number(m.fixedDay) || 1)),
+          dueDate: typeof m.dueDate === 'string' ? m.dueDate : getTodayString(),
+          lastDoneDate: typeof m.lastDoneDate === 'string' ? m.lastDoneDate : getTodayString(),
+          exp: Number(m.exp) || 30,
+          totalCount: Math.max(0, Number(m.totalCount) || 0),
+          completed: Boolean(m.completed)
+        };
+      });
+    };
+
+    const sanitizeSavedReports = (rawReports) => {
+      if (!Array.isArray(rawReports) || rawReports.length === 0) return INITIAL_SAVED_REPORTS;
+      return rawReports.map((r, idx) => {
+        if (!r || typeof r !== 'object') return INITIAL_SAVED_REPORTS[idx % INITIAL_SAVED_REPORTS.length];
+        return {
+          date: String(r.date || getTodayString()),
+          totalExpEarned: Number(r.totalExpEarned) || 0,
+          completedCount: Number(r.completedCount) || 0,
+          reportText: String(r.reportText || '記録された確定報告文はありません。')
+        };
+      });
+    };
+
+    const sanitizeAdhocLogs = (rawLogs) => {
+      if (!Array.isArray(rawLogs)) return [];
+      return rawLogs.map((l, idx) => {
+        if (!l || typeof l !== 'object') return null;
+        return {
+          id: String(l.id || 'adhoc-' + Date.now() + '-' + idx),
+          name: String(l.name || '突発ログ'),
+          emoji: String(l.emoji || '🌟'),
+          exp: Number(l.exp) || 15,
+          timestamp: String(l.timestamp || '')
+        };
+      }).filter(Boolean);
+    };
+
+    const sanitizeAppState = (data) => {
+      if (!data || typeof data !== 'object') {
+        return {
+          schemaVersion: CURRENT_SCHEMA_VERSION,
+          totalExp: 140,
+          habits: INITIAL_HABITS,
+          maintenance: INITIAL_MAINTENANCE,
+          adhocLogs: [],
+          completedQuests: [],
+          savedReports: INITIAL_SAVED_REPORTS,
+          lastActiveDate: getTodayString()
+        };
+      }
+      return {
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        totalExp: Math.max(0, Number(data.totalExp) || 0),
+        habits: sanitizeHabits(data.habits),
+        maintenance: sanitizeMaintenance(data.maintenance),
+        adhocLogs: sanitizeAdhocLogs(data.adhocLogs),
+        completedQuests: Array.isArray(data.completedQuests) ? data.completedQuests : [],
+        savedReports: sanitizeSavedReports(data.savedReports),
+        lastActiveDate: typeof data.lastActiveDate === 'string' ? data.lastActiveDate : getTodayString()
+      };
+    };
+
+    const getHabitDividend = (habitName) => {
+      if (!habitName || typeof habitName !== 'string') {
+        return HABIT_SPECIFIC_KNOWLEDGE['default'];
+      }
+      for (const key in HABIT_SPECIFIC_KNOWLEDGE) {
+        if (habitName.includes(key)) {
+          return HABIT_SPECIFIC_KNOWLEDGE[key];
+        }
+      }
+      return HABIT_SPECIFIC_KNOWLEDGE['default'];
+    };
+
+    const getRemainingDays = (task) => {
+      if (!task || typeof task !== 'object') return 9990;
+      if (task.type === 'single' && task.completed) return 99999;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (task.type === 'single') {
+        if (!task.dueDate) return 9990;
+        const due = new Date(task.dueDate);
+        due.setHours(0, 0, 0, 0);
+        return Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      }
+
+      if (task.type === 'cycle') {
+        if (!task.lastDoneDate) return -(task.cycleDays || 14);
+        const last = new Date(task.lastDoneDate);
+        last.setHours(0, 0, 0, 0);
+        const cycleDays = Number(task.cycleDays) || 14;
+        const dueTime = last.getTime() + cycleDays * 86400000;
+        return Math.round((dueTime - today.getTime()) / (1000 * 60 * 60 * 24));
+      }
+
+      if (task.type === 'monthly') {
+        const cYear = today.getFullYear();
+        const cMonth = today.getMonth();
+        const cDay = today.getDate();
+        const fDay = Math.min(31, Math.max(1, Number(task.fixedDay) || 1));
+        let target = new Date(cYear, cMonth, fDay);
+        target.setHours(0, 0, 0, 0);
+
+        if (cDay > fDay) {
+          if (task.lastDoneDate) {
+            const last = new Date(task.lastDoneDate);
+            if (last.getFullYear() === cYear && last.getMonth() === cMonth) {
+              target = new Date(cYear, cMonth + 1, fDay);
+            }
+          }
+        } else if (task.lastDoneDate) {
+          const last = new Date(task.lastDoneDate);
+          if (last.getFullYear() === cYear && last.getMonth() === cMonth) {
+            target = new Date(cYear, cMonth + 1, fDay);
+          }
+        }
+        return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      }
+      return 9990;
+    };
+
+    const getLevelObj = (exp) => {
+      const numericExp = Number(exp) || 0;
+      let cur = LEVEL_TITLES[0];
+      for (let i = 0; i < LEVEL_TITLES.length; i++) {
+        if (numericExp >= LEVEL_TITLES[i].minExp) cur = LEVEL_TITLES[i];
+        else break;
+      }
+      return cur;
+    };
+
+    const Icon = ({ name, className = "w-4 h-4", fill = "none" }) => {
+      switch (name) {
+        case 'sparkles':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+        case 'flame':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>;
+        case 'trophy':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
+        case 'check-circle':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
+        case 'circle':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/></svg>;
+        case 'calendar':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
+        case 'refresh':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>;
+        case 'clock':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+        case 'plus':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+        case 'trash':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>;
+        case 'edit':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>;
+        case 'download':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+        case 'upload':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>;
+        case 'copy':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>;
+        case 'check':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
+        case 'settings':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
+        case 'zap':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+        case 'close':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+        case 'filter':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>;
+        case 'book-open':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
+        case 'link':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>;
+        case 'external-link':
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
+        default:
+          return <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/></svg>;
+      }
+    };
+
+    class ErrorBoundary extends Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+      componentDidCatch(error, errorInfo) {
+        console.error("ErrorBoundary intercepted crash:", error, errorInfo);
+      }
+      handleRepair = () => {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const data = JSON.parse(raw);
+            const sanitized = sanitizeAppState(data);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
+          }
+        } catch (e) {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+        window.location.reload();
+      };
+      handleReset = () => {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (e) {}
+        window.location.reload();
+      };
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center p-4">
+              <div className="max-w-md w-full bg-slate-800 border-2 border-amber-400 rounded-3xl p-6 shadow-2xl space-y-4 text-center">
+                <div className="text-4xl">🛠️</div>
+                <h2 className="text-lg font-bold text-amber-300">データ保護・安全復旧モード</h2>
+                <p className="text-xs text-slate-300 leading-relaxed text-left bg-slate-900/80 p-3 rounded-xl border border-slate-700">
+                  復元ファイルの形式差分により画面描画が停止しました。<br />
+                  あなたの過去のEXPやタスク記録を失うことなく、最新仕様へ安全に修復して復帰できます。
+                </p>
+                <div className="space-y-2 pt-2">
+                  <button
+                    onClick={this.handleRepair}
+                    className="w-full py-3 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs rounded-xl shadow-lg active:scale-95 transition-all"
+                  >
+                    データを自動修復して起動する（推奨）
+                  </button>
+                  <button
+                    onClick={this.handleReset}
+                    className="w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold text-xs rounded-xl transition-all"
+                  >
+                    初期状態でリセット起動
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    function App() {
+      const [activeTab, setActiveTab] = useState('habits');
+      // デフォルトで未完了優先ソートをONに設定
+      const [filterUncompleted, setFilterUncompleted] = useState(true);
+
+      const [totalExp, setTotalExp] = useState(140);
+      const [habits, setHabits] = useState(INITIAL_HABITS);
+      const [maintenance, setMaintenance] = useState(INITIAL_MAINTENANCE);
+      const [adhocLogs, setAdhocLogs] = useState([]);
+      const [completedQuests, setCompletedQuests] = useState([]);
+      const [lastActiveDate, setLastActiveDate] = useState(getTodayString());
+      const [savedReports, setSavedReports] = useState(INITIAL_SAVED_REPORTS);
+
+      // UI状態
+      const [floatingExp, setFloatingExp] = useState(null);
+      const [saveStatus, setSaveStatus] = useState('保存済 ✓');
+      const [showReportModal, setShowReportModal] = useState(false);
+      const [showHistoryModal, setShowHistoryModal] = useState(false);
+      const [showSettingsModal, setShowSettingsModal] = useState(false);
+      const [showInstallGuideModal, setShowInstallGuideModal] = useState(false);
+      const [editingTask, setEditingTask] = useState(null);
+      const [editingMaintenance, setEditingMaintenance] = useState(null);
+      const [customAdhocText, setCustomAdhocText] = useState('');
+      const [customAdhocExp, setCustomAdhocExp] = useState(15);
+      const [copyFeedback, setCopyFeedback] = useState(false);
+      const [milestoneModalData, setMilestoneModalData] = useState(null);
+      const [timeUntilMidnight, setTimeUntilMidnight] = useState('');
+      const [viewingReport, setViewingReport] = useState(null);
+
+      // 復元成功・案内用バナー
+      const [recoveryToast, setRecoveryToast] = useState(null);
+
+      useEffect(() => {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            const safe = sanitizeAppState(parsed);
+
+            setTotalExp(safe.totalExp);
+            setMaintenance(safe.maintenance);
+            setAdhocLogs(safe.adhocLogs);
+            setCompletedQuests(safe.completedQuests);
+            setSavedReports(safe.savedReports);
+
+            const today = getTodayString();
+            if (safe.lastActiveDate && safe.lastActiveDate !== today) {
+              const reset = safe.habits.map(h => ({
+                ...h,
+                countToday: 0,
+                bonusToday: 0
+              }));
+              setHabits(reset);
+              setCompletedQuests([]);
+              setLastActiveDate(today);
+            } else {
+              setHabits(safe.habits);
+              setLastActiveDate(safe.lastActiveDate);
+            }
+          }
+        } catch (e) {
+          console.warn('LocalStorage load/sanitization error, falling back:', e);
+          setHabits(INITIAL_HABITS);
+          setMaintenance(INITIAL_MAINTENANCE);
+          setSavedReports(INITIAL_SAVED_REPORTS);
+        }
+      }, []);
+
+      useEffect(() => {
+        const checkMidnight = () => {
+          const now = new Date();
+          const today = getTodayString();
+          
+          const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+          const diffMs = midnight.getTime() - now.getTime();
+          const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+          const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+          setTimeUntilMidnight(`${diffHrs}時間${diffMins}分`);
+
+          if (lastActiveDate && lastActiveDate !== today) {
+            const yesterdayReport = generateReportForDate(lastActiveDate);
+            const newArchiveEntry = {
+              date: lastActiveDate,
+              reportText: yesterdayReport,
+              totalExpEarned: habits.reduce((acc, h) => acc + ((Number(h.countToday) || 0) * (Number(h.exp) || 0) + (Number(h.bonusToday) || 0) * (Number(h.bonusExp) || 0)), 0),
+              completedCount: habits.reduce((acc, h) => acc + (Number(h.countToday) || 0), 0)
+            };
+
+            setSavedReports(prev => [newArchiveEntry, ...prev.filter(r => r.date !== lastActiveDate)]);
+            setHabits(prev => prev.map(h => ({ ...h, countToday: 0, bonusToday: 0 })));
+            setCompletedQuests([]);
+            setAdhocLogs([]);
+            setLastActiveDate(today);
+          }
+        };
+
+        checkMidnight();
+        const interval = setInterval(checkMidnight, 30000);
+        return () => clearInterval(interval);
+      }, [lastActiveDate, habits]);
+
+      const todayEarnedExp = useMemo(() => {
+        const habitExp = (habits || []).reduce((acc, h) => {
+          const c = Number(h.countToday) || 0;
+          const e = Number(h.exp) || 0;
+          const bc = Number(h.bonusToday) || 0;
+          const be = Number(h.bonusExp) || 0;
+          return acc + (c * e) + (bc * be);
+        }, 0);
+        const adhocExp = (adhocLogs || []).reduce((acc, l) => acc + (Number(l.exp) || 0), 0);
+        return habitExp + adhocExp;
+      }, [habits, adhocLogs]);
+
+      const rankingTargetInfo = useMemo(() => {
+        const safeReports = Array.isArray(savedReports) && savedReports.length > 0 ? savedReports : INITIAL_SAVED_REPORTS;
+        const sorted = [...safeReports].sort((a, b) => (Number(b.totalExpEarned) || 0) - (Number(a.totalExpEarned) || 0));
+        const top1 = Number(sorted[0]?.totalExpEarned) || 120;
+        const top2 = Number(sorted[1]?.totalExpEarned) || 90;
+        const top3 = Number(sorted[2]?.totalExpEarned) || 60;
+
+        if (todayEarnedExp > top1) {
+          return {
+            text: `👑 歴代1位新記録を更新中！（過去最高 +${top1} EXPを突破！）`,
+            targetRank: 1,
+            isNewRecord: true,
+            diff: 0
+          };
+        } else if (todayEarnedExp > top2) {
+          const diff = top1 - todayEarnedExp + 1;
+          return {
+            text: `🥈 歴代2位圏内！あと ${diff} EXP で歴代1位です！`,
+            targetRank: 1,
+            isNewRecord: false,
+            diff
+          };
+        } else if (todayEarnedExp > top3) {
+          const diff = top2 - todayEarnedExp + 1;
+          return {
+            text: `🥉 歴代3位圏内！あと ${diff} EXP で歴代2位です！`,
+            targetRank: 2,
+            isNewRecord: false,
+            diff
+          };
+        } else {
+          const diff = Math.max(1, top3 - todayEarnedExp + 1);
+          return {
+            text: `あと ${diff} EXP で歴代3位です！`,
+            targetRank: 3,
+            isNewRecord: false,
+            diff
+          };
+        }
+      }, [savedReports, todayEarnedExp]);
+
+      useEffect(() => {
+        setSaveStatus('保存中...');
+        const timer = setTimeout(() => {
+          try {
+            const payload = {
+              schemaVersion: CURRENT_SCHEMA_VERSION,
+              totalExp: Number(totalExp) || 0,
+              habits: sanitizeHabits(habits),
+              maintenance: sanitizeMaintenance(maintenance),
+              adhocLogs: sanitizeAdhocLogs(adhocLogs),
+              completedQuests: Array.isArray(completedQuests) ? completedQuests : [],
+              savedReports: sanitizeSavedReports(savedReports),
+              lastActiveDate
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+            setSaveStatus('自動保存済 ✓');
+          } catch (e) {
+            setSaveStatus('保存エラー ✕');
+          }
+        }, 300);
+        return () => clearTimeout(timer);
+      }, [totalExp, habits, maintenance, adhocLogs, completedQuests, savedReports, lastActiveDate]);
+
+      const currentLevelInfo = useMemo(() => {
+        const exp = Number(totalExp) || 0;
+        let current = LEVEL_TITLES[0];
+        let next = LEVEL_TITLES[1];
+        for (let i = 0; i < LEVEL_TITLES.length; i++) {
+          if (exp >= LEVEL_TITLES[i].minExp) {
+            current = LEVEL_TITLES[i];
+            next = LEVEL_TITLES[i + 1] || null;
+          } else break;
+        }
+        const currentBase = current.minExp;
+        const nextBase = next ? next.minExp : current.minExp + 1000;
+        const progressPercent = next
+          ? Math.min(100, Math.max(0, ((exp - currentBase) / (nextBase - currentBase)) * 100))
+          : 100;
+
+        return {
+          level: current.level,
+          title: current.title,
+          progressPercent,
+          nextMinExp: nextBase,
+          currentMinExp: currentBase
+        };
+      }, [totalExp]);
+
+      const triggerExpGain = (amount, label = 'EXP') => {
+        const val = Number(amount) || 0;
+        setTotalExp(prev => (Number(prev) || 0) + val);
+        setFloatingExp({ amount: val, label, key: Date.now() });
+        setTimeout(() => setFloatingExp(null), 1200);
+      };
+
+      const handleHabitIncrement = (id, isBonus = false) => {
+        setHabits(prev =>
+          prev.map(item => {
+            if (item.id === id) {
+              const expVal = Number(item.exp) || 10;
+              const bonusVal = Number(item.bonusExp) || 5;
+              const expGain = isBonus ? expVal + bonusVal : expVal;
+              triggerExpGain(expGain, isBonus ? `⚡ボーナス +${expGain}` : `+${expGain}`);
+
+              const newTotal = (Number(item.totalCount) || 0) + 1;
+              const knowledge = getHabitDividend(item.name);
+
+              if ([10, 20, 30, 50, 100].includes(newTotal)) {
+                setTimeout(() => {
+                  setMilestoneModalData({
+                    taskName: item.name,
+                    emoji: item.emoji || '✨',
+                    totalCount: newTotal,
+                    dividendTitle: knowledge.dividendTitle,
+                    dividendDesc: knowledge.dividendDesc,
+                    trivia: knowledge.trivia
+                  });
+                }, 400);
+              }
+
+              return {
+                ...item,
+                countToday: (Number(item.countToday) || 0) + 1,
+                bonusToday: isBonus ? (Number(item.bonusToday) || 0) + 1 : (Number(item.bonusToday) || 0),
+                totalCount: newTotal,
+                lastUpdated: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              };
+            }
+            return item;
+          })
+        );
+      };
+
+      const completeMaintenanceTask = (id) => {
+        setMaintenance(prev =>
+          prev.map(task => {
+            if (task.id === id) {
+              const gain = Number(task.exp) || 30;
+              triggerExpGain(gain, `✨メンテ完了 +${gain}`);
+              if (task.type === 'single') {
+                return { ...task, completed: true, totalCount: (Number(task.totalCount) || 0) + 1 };
+              }
+              return {
+                ...task,
+                lastDoneDate: getTodayString(),
+                totalCount: (Number(task.totalCount) || 0) + 1
+              };
+            }
+            return task;
+          })
+        );
+      };
+
+      const handleSaveMaintenance = (taskToSave) => {
+        if (!taskToSave || !taskToSave.name || !taskToSave.name.trim()) return;
+        setMaintenance(prev => {
+          if (!taskToSave.id) {
+            const newTask = {
+              ...taskToSave,
+              id: 'm-' + Date.now(),
+              name: taskToSave.name.trim(),
+              emoji: taskToSave.emoji || '🧹',
+              type: taskToSave.type || 'cycle',
+              cycleDays: Number(taskToSave.cycleDays) || 14,
+              fixedDay: Math.min(31, Math.max(1, Number(taskToSave.fixedDay) || 1)),
+              dueDate: taskToSave.dueDate || getTodayString(),
+              lastDoneDate: taskToSave.lastDoneDate || getTodayString(),
+              exp: Number(taskToSave.exp) || 30,
+              totalCount: Math.max(0, Number(taskToSave.totalCount) || 0),
+              completed: taskToSave.type === 'single' ? Boolean(taskToSave.completed) : false
+            };
+            return [newTask, ...prev];
+          } else {
+            return prev.map(t => (t.id === taskToSave.id ? {
+              ...t,
+              ...taskToSave,
+              name: taskToSave.name.trim(),
+              emoji: taskToSave.emoji || '🧹',
+              exp: Number(taskToSave.exp) || 30,
+              cycleDays: Number(taskToSave.cycleDays) || 14,
+              fixedDay: Math.min(31, Math.max(1, Number(taskToSave.fixedDay) || 1)),
+              totalCount: Math.max(0, Number(taskToSave.totalCount) || 0),
+              completed: Boolean(taskToSave.completed)
+            } : t));
+          }
+        });
+        setEditingMaintenance(null);
+      };
+
+      const handleDeleteMaintenance = (id) => {
+        setMaintenance(prev => prev.filter(t => t.id !== id));
+        setEditingMaintenance(null);
+      };
+
+      const addAdhocLog = (name, emoji, exp) => {
+        const expVal = Number(exp) || 15;
+        const newLog = {
+          id: 'adhoc-' + Date.now(),
+          name: name || '突発ログ',
+          emoji: emoji || '🌟',
+          exp: expVal,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setAdhocLogs(prev => [newLog, ...prev]);
+        triggerExpGain(expVal, `突発ログ +${expVal}`);
+      };
+
+      const sortedHabits = useMemo(() => {
+        const safe = Array.isArray(habits) ? habits : [];
+        if (!filterUncompleted) return safe;
+        return [...safe].sort((a, b) => {
+          const aDone = (Number(a.countToday) || 0) > 0 ? 1 : 0;
+          const bDone = (Number(b.countToday) || 0) > 0 ? 1 : 0;
+          return aDone - bDone;
+        });
+      }, [habits, filterUncompleted]);
+
+      const sortedMaintenance = useMemo(() => {
+        const safe = Array.isArray(maintenance) ? maintenance : [];
+        const list = safe.map(task => ({
+          ...task,
+          _remainingDays: getRemainingDays(task)
+        }));
+        return list.sort((a, b) => {
+          const aComp = a.type === 'single' && a.completed;
+          const bComp = b.type === 'single' && b.completed;
+          if (aComp && !bComp) return 1;
+          if (!aComp && bComp) return -1;
+          return a._remainingDays - b._remainingDays;
+        });
+      }, [maintenance]);
+
+      const generateReportForDate = (targetDateStr) => {
+        const completedList = (habits || []).filter(h => (Number(h.countToday) || 0) > 0);
+        const totalTodayCounts = (habits || []).reduce((acc, cur) => acc + (Number(cur.countToday) || 0), 0);
+
+        let report = `🌟 【自己肯定感＆実生活配当 確定報告書】 🌟\n`;
+        report += `📅 日付: ${targetDateStr || getTodayString()}\n`;
+        report += `👑 現在の称号: Lv.${currentLevelInfo.level}「${currentLevelInfo.title}」 (累計 ${totalExp} EXP)\n`;
+        report += `🌙 24:00自動確定システム記録済\n`;
+        report += `────────────────────────────\n\n`;
+
+        report += `🔥 【本日積み上げた偉業（計 ${totalTodayCounts} 回）】\n`;
+        if (completedList.length === 0) {
+          report += `・まずは息をして今日を生き抜いたこと自体が100点満点の大勝利！\n`;
+        } else {
+          completedList.forEach(h => {
+            report += `・${h.emoji || '✨'} ${h.name} × ${h.countToday}回（通算: ${h.totalCount || 0}回）\n`;
+            if ((Number(h.bonusToday) || 0) > 0) {
+              report += `  └ ⚡ 条件ボーナス達成: 「${h.bonusText}」 × ${h.bonusToday}回！\n`;
+            }
+          });
+        }
+
+        if (adhocLogs && adhocLogs.length > 0) {
+          report += `\n⚡ 【突発的な機転と頑張りのログ】\n`;
+          adhocLogs.forEach(l => {
+            report += `・${l.emoji || '🌟'} ${l.name} (${l.timestamp}) [+${l.exp} EXP]\n`;
+          });
+        }
+
+        report += `\n🧬 【本日確定した具体的な実生活・身体配当】\n`;
+        if (completedList.length > 0) {
+          const uniqueTitled = new Set();
+          completedList.forEach(h => {
+            const k = getHabitDividend(h.name);
+            if (!uniqueTitled.has(k.dividendTitle)) {
+              uniqueTitled.add(k.dividendTitle);
+              report += `◆ ${h.emoji || '✨'} ${h.name}：${k.dividendTitle}\n`;
+              report += `  ${k.dividendDesc}\n`;
+              report += `  💡 科学うんちく: ${k.trivia}\n\n`;
+            }
+          });
+        } else {
+          report += `・心身の休息配当：無理をせず余力を温存し、エネルギーを充填しました。\n`;
+        }
+
+        report += `────────────────────────────\n`;
+        report += `【全肯定メッセージ】\n世界は目立つ成果を求めがちですが、本当に生活を支え、未来の健康と時間を守っているのは、今日あなたがこなした地道な1回1回です。誰が見ていなくても、このアプリとあなたの身体はすべて記憶しています。今夜は胸を張ってゆっくり休んでください✨`;
+
+        return report;
+      };
+
+      const copyToClipboard = (text) => {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        setCopyFeedback(true);
+        setTimeout(() => setCopyFeedback(false), 2000);
+      };
+
+      return (
+        <div className="flex flex-col min-h-[100dvh] bg-slate-900 text-slate-100 font-sans antialiased pb-[calc(env(safe-area-inset-bottom)+84px)]">
+          
+          {/* Recovery feedback banner */}
+          {recoveryToast && (
+            <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-md animate-bounce">
+              <div className="bg-emerald-500 text-slate-950 px-4 py-2.5 rounded-2xl shadow-xl font-bold text-xs flex items-center justify-between border-2 border-white">
+                <span>{recoveryToast}</span>
+                <button onClick={() => setRecoveryToast(null)} className="ml-2 font-black text-sm">✕</button>
+              </div>
+            </div>
+          )}
+
+          {/* Floating EXP gain animation */}
+          {floatingExp && (
+            <div key={floatingExp.key} className="fixed top-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-bounce">
+              <div className="bg-amber-400 text-slate-950 font-black text-xs px-3.5 py-1.5 rounded-full shadow-lg shadow-amber-400/40 flex items-center gap-1 border-2 border-white">
+                <Icon name="zap" className="w-3.5 h-3.5 text-slate-950" fill="currentColor" />
+                <span>{floatingExp.label}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Header */}
+          <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 pt-[env(safe-area-inset-top)] px-4 pb-2.5">
+            <div className="max-w-xl mx-auto flex items-center justify-between gap-2 pt-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center font-black text-slate-950 text-sm shadow-md shrink-0">
+                  Lv.{currentLevelInfo.level}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-amber-300 truncate flex items-center gap-1">
+                    <Icon name="trophy" className="w-3 h-3 shrink-0" />
+                    <span className="truncate">{currentLevelInfo.title}</span>
+                  </div>
+                  <div className="text-[10px] text-slate-400">
+                    累計 <strong className="text-slate-100 font-bold">{totalExp}</strong> EXP
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  onClick={() => setShowHistoryModal(true)}
+                  className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 font-bold text-xs flex items-center gap-1 transition-all active:scale-95"
+                  title="過去のTOP3＆直近1週間の報告文アーカイブ"
+                >
+                  <Icon name="book-open" className="w-3.5 h-3.5 text-amber-400" />
+                  <span>📜 過去実績</span>
+                </button>
+                <button
+                  onClick={() => setShowSettingsModal(true)}
+                  className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                  title="設定・バックアップ"
+                >
+                  <Icon name="settings" className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* EXP Gauge */}
+            <div className="max-w-xl mx-auto mt-2">
+              <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-700/50">
+                <div
+                  className="bg-gradient-to-r from-amber-400 to-orange-500 h-full rounded-full transition-all duration-300"
+                  style={{ width: `${currentLevelInfo.progressPercent}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Real-time TOP 3 Ranking Bar */}
+            <div
+              onClick={() => setShowHistoryModal(true)}
+              className="max-w-xl mx-auto mt-2 bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-amber-500/10 hover:from-amber-500/25 hover:to-orange-500/20 border border-amber-500/40 rounded-xl px-3 py-1.5 flex items-center justify-between cursor-pointer transition-all active:scale-[0.99] shadow-sm"
+              title="タップで歴代TOP3と過去1週間の報告文を開く"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-sm shrink-0">
+                  {rankingTargetInfo.targetRank === 1 ? '👑' : rankingTargetInfo.targetRank === 2 ? '🥈' : '🥉'}
+                </span>
+                <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                  <span className="text-[11px] text-slate-300 font-medium">
+                    本日: <strong className="text-amber-300 font-mono font-bold">+{todayEarnedExp}</strong> EXP
+                  </span>
+                  <span className="text-slate-600 text-[10px]">|</span>
+                  <span className="text-xs font-black text-amber-200 tracking-tight whitespace-normal break-words">
+                    {rankingTargetInfo.text}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1 text-[10px] text-amber-400 font-bold shrink-0 pl-1">
+                <span>歴代TOP3</span>
+                <Icon name="book-open" className="w-3 h-3 text-amber-400" />
+              </div>
+            </div>
+          </header>
+
+          <div className="max-w-xl mx-auto w-full px-4 pt-2.5">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5 bg-slate-800/80 px-2.5 py-1 rounded-xl border border-slate-700/60 text-xs">
+                <Icon name="filter" className="w-3 h-3 text-slate-400" />
+                <span className="text-slate-300 text-[11px] font-medium">未完了を優先</span>
+                <button
+                  type="button"
+                  onClick={() => setFilterUncompleted(!filterUncompleted)}
+                  className={`w-7 h-4 flex items-center rounded-full p-0.5 transition-colors ${
+                    filterUncompleted ? 'bg-amber-500 justify-end' : 'bg-slate-700 justify-start'
+                  }`}
+                >
+                  <div className="bg-white w-3 h-3 rounded-full shadow-sm" />
+                </button>
+              </div>
+
+              <div className="text-[11px] text-slate-400 font-mono">
+                {activeTab === 'habits' && `${(habits || []).length} 個の習慣`}
+                {activeTab === 'maintenance' && `${(maintenance || []).length} 件のメンテ`}
+                {activeTab === 'adhoc' && `${(adhocLogs || []).length} 件の突発ログ`}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-1 bg-slate-800/90 p-1 rounded-2xl border border-slate-700/80">
+              <button
+                onClick={() => setActiveTab('habits')}
+                className={`py-1.5 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 ${
+                  activeTab === 'habits'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Icon name="refresh" className="w-3.5 h-3.5" />
+                <span>日々の習慣</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('maintenance')}
+                className={`py-1.5 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 ${
+                  activeTab === 'maintenance'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Icon name="calendar" className="w-3.5 h-3.5" />
+                <span>定期メンテ</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('adhoc')}
+                className={`py-1.5 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 ${
+                  activeTab === 'adhoc'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Icon name="zap" className="w-3.5 h-3.5" />
+                <span>突発ログ</span>
+              </button>
+            </div>
+          </div>
+
+          <main className="max-w-xl mx-auto w-full px-4 pt-2.5 flex-1">
+            
+            {/* 1. 日々の習慣タブ */}
+            {activeTab === 'habits' && (
+              <div className="space-y-2.5">
+                {sortedHabits.map((habit) => {
+                  const isCompletedToday = (Number(habit.countToday) || 0) > 0;
+                  const knowledge = getHabitDividend(habit.name);
+                  const hasLink = typeof habit.linkUrl === 'string' && habit.linkUrl.trim() !== '';
+
+                  return (
+                    <div
+                      key={habit.id}
+                      className={`bg-slate-800/85 border rounded-2xl p-3 transition-all ${
+                        isCompletedToday
+                          ? 'border-emerald-500/40 bg-slate-800/95'
+                          : 'border-slate-700/80 hover:border-slate-600'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start gap-2.5 min-w-0">
+                          <span className="text-2xl shrink-0 p-1 bg-slate-700/50 rounded-xl">{habit.emoji || '✨'}</span>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <h3 className="text-sm font-bold text-slate-100 whitespace-normal break-words">
+                                {habit.name}
+                              </h3>
+                              <span className="text-[10px] font-semibold bg-slate-700/80 text-amber-300 px-1.5 py-0.5 rounded-md border border-slate-600/50">
+                                通算 {habit.totalCount || 0} 回
+                              </span>
+                            </div>
+
+                            <div className="text-[10px] text-sky-300/90 font-medium mt-0.5">
+                              {knowledge.benefitTag}
+                            </div>
+
+                            <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-400">
+                              <span>本日: <strong className={(Number(habit.countToday) || 0) > 0 ? 'text-emerald-400 font-bold' : 'text-slate-400'}>{habit.countToday || 0}</strong> 回</span>
+                              {(Number(habit.bonusToday) || 0) > 0 && (
+                                <span className="text-[10px] text-amber-300 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-500/30 font-semibold">
+                                  ⚡条件 {habit.bonusToday} 回
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {hasLink && (
+                            <a
+                              href={/^https?:\/\//i.test(habit.linkUrl.trim()) ? habit.linkUrl.trim() : `https://${habit.linkUrl.trim()}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="px-2.5 py-1 bg-sky-950/90 hover:bg-sky-900 border border-sky-400/60 text-sky-300 rounded-xl text-xs font-bold flex items-center gap-1 transition-all active:scale-95 shadow-md shadow-sky-950/50 shrink-0"
+                              title={`${habit.name}の参考リンクを開く`}
+                            >
+                              <Icon name="link" className="w-3.5 h-3.5 text-sky-400" />
+                              <span>リンク</span>
+                              <Icon name="external-link" className="w-3 h-3 text-sky-400/80" />
+                            </a>
+                          )}
+                          <button
+                            onClick={() => setEditingTask({ ...habit })}
+                            className="p-1.5 text-slate-400 hover:text-amber-300 rounded-lg bg-slate-700/40"
+                            title="編集"
+                          >
+                            <Icon name="edit" className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-2 gap-2 pt-2 border-t border-slate-700/50">
+                        <button
+                          onClick={() => handleHabitIncrement(habit.id, false)}
+                          className="py-2 px-3 bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all rounded-xl text-xs font-bold text-slate-100 flex items-center justify-center gap-1.5 shadow-sm"
+                        >
+                          <Icon name="plus" className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>できた (+{habit.exp || 10})</span>
+                        </button>
+                        <button
+                          onClick={() => handleHabitIncrement(habit.id, true)}
+                          className="py-2 px-3 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 border border-amber-500/30 active:scale-95 transition-all rounded-xl text-xs font-bold text-amber-300 flex items-center justify-center gap-1.5 shadow-sm"
+                        >
+                          <Icon name="zap" className="w-3.5 h-3.5 text-amber-400" />
+                          <span className="truncate">{habit.bonusText || '条件達成'} (+{(Number(habit.exp) || 10) + (Number(habit.bonusExp) || 5)})</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <button
+                  onClick={() =>
+                    setEditingTask({
+                      id: 'h-' + Date.now(),
+                      name: '',
+                      emoji: '✨',
+                      exp: 10,
+                      bonusText: '丁寧に実施',
+                      bonusExp: 5,
+                      linkUrl: '',
+                      countToday: 0,
+                      bonusToday: 0,
+                      totalCount: 0,
+                      lastUpdated: ''
+                    })
+                  }
+                  className="w-full py-2.5 bg-slate-800/60 hover:bg-slate-800 border border-dashed border-slate-700/80 rounded-2xl text-xs text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <Icon name="plus" className="w-4 h-4" />
+                  <span>+ 新しい習慣を追加</span>
+                </button>
+              </div>
+            )}
+
+            {/* 2. 定期メンテナンスタブ */}
+            {activeTab === 'maintenance' && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between bg-slate-800/40 p-2.5 rounded-2xl border border-slate-700/50">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                    <Icon name="clock" className="w-3.5 h-3.5 text-amber-400" />
+                    <span>期限・緊急度順に自動ソート中</span>
+                  </div>
+                  <button
+                    onClick={() =>
+                      setEditingMaintenance({
+                        id: null,
+                        name: '',
+                        emoji: '🧹',
+                        type: 'cycle',
+                        cycleDays: 14,
+                        fixedDay: 1,
+                        dueDate: getTodayString(),
+                        lastDoneDate: getTodayString(),
+                        exp: 30,
+                        totalCount: 0
+                      })
+                    }
+                    className="px-3 py-1 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold text-xs rounded-xl flex items-center gap-1 shadow-sm active:scale-95"
+                  >
+                    <Icon name="plus" className="w-3.5 h-3.5" />
+                    <span>+ 定期タスク登録</span>
+                  </button>
+                </div>
+
+                {sortedMaintenance.map((task) => {
+                  const remaining = task._remainingDays ?? getRemainingDays(task);
+                  let statusBadge = null;
+
+                  if (task.type === 'single' && task.completed) {
+                    statusBadge = <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-700 text-slate-400 rounded-full">完了済</span>;
+                  } else if (remaining < 0) {
+                    statusBadge = <span className="px-2 py-0.5 text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 rounded-full animate-pulse">{Math.abs(remaining)}日 超過！</span>;
+                  } else if (remaining === 0) {
+                    statusBadge = <span className="px-2 py-0.5 text-[10px] font-bold bg-orange-500/20 text-orange-300 border border-orange-500/40 rounded-full animate-pulse">⚡ 本日が期日！</span>;
+                  } else if (remaining <= 3) {
+                    statusBadge = <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full">あと{remaining}日 (そろそろ)</span>;
+                  } else {
+                    statusBadge = <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full">良好 (あと{remaining}日)</span>;
+                  }
+
+                  return (
+                    <div
+                      key={task.id}
+                      className={`bg-slate-800/80 border rounded-2xl p-3.5 transition-all ${
+                        task.completed ? 'opacity-60 border-slate-700/60' : remaining <= 0 ? 'border-rose-500/40 bg-slate-800/95' : 'border-slate-700/80'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start gap-2.5 min-w-0">
+                          <span className="text-2xl p-1 bg-slate-700/50 rounded-xl shrink-0">{task.emoji || '🧹'}</span>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="text-sm font-bold text-slate-100 whitespace-normal break-words">{task.name}</h3>
+                              {statusBadge}
+                            </div>
+                            <div className="text-xs text-slate-400 mt-1">
+                              {task.type === 'cycle' && `前回から ${task.lastDoneDate || '未記録'} (目安: ${task.cycleDays || 14}日ごと)`}
+                              {task.type === 'monthly' && `毎月 ${task.fixedDay || 1}日固定`}
+                              {task.type === 'single' && `締切: ${task.dueDate || '指定なし'}`}
+                            </div>
+                            <div className="text-[11px] text-amber-300 mt-0.5">
+                              通算実施: <strong>{task.totalCount || 0}</strong> 回
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            onClick={() => setEditingMaintenance({ ...task })}
+                            className="p-1.5 text-slate-400 hover:text-amber-300 rounded-lg bg-slate-700/40"
+                          >
+                            <Icon name="edit" className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 pt-2.5 border-t border-slate-700/50 flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-amber-400">獲得 +{task.exp || 30} EXP</span>
+                        <button
+                          onClick={() => completeMaintenanceTask(task.id)}
+                          disabled={task.completed}
+                          className={`px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${
+                            task.completed ? 'bg-slate-700 text-slate-500' : 'bg-emerald-600 hover:bg-emerald-500 text-white active:scale-95'
+                          }`}
+                        >
+                          <Icon name="check" className="w-3.5 h-3.5" />
+                          <span>{task.completed ? '完了済' : '実施完了！'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* 3. 突発ログタブ */}
+            {activeTab === 'adhoc' && (
+              <div className="space-y-3">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!customAdhocText.trim()) return;
+                    addAdhocLog(customAdhocText.trim(), '📝', Number(customAdhocExp) || 15);
+                    setCustomAdhocText('');
+                  }}
+                  className="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-3 shadow-sm"
+                >
+                  <div className="text-xs font-bold text-slate-200 mb-2 flex items-center gap-1.5">
+                    <Icon name="edit" className="w-3.5 h-3.5 text-amber-400" />
+                    <span>手入力で突発ログを記録</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="例：重い荷物を運んだ、愚痴を聞いた"
+                      value={customAdhocText}
+                      onChange={(e) => setCustomAdhocText(e.target.value)}
+                      className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                    />
+                    <select
+                      value={customAdhocExp}
+                      onChange={(e) => setCustomAdhocExp(Number(e.target.value))}
+                      className="bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-xs text-amber-300 font-bold focus:outline-none"
+                    >
+                      <option value={10}>+10 EXP</option>
+                      <option value={15}>+15 EXP</option>
+                      <option value={20}>+20 EXP</option>
+                      <option value={30}>+30 EXP</option>
+                    </select>
+                    <button
+                      type="submit"
+                      className="px-3 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold text-xs rounded-xl active:scale-95"
+                    >
+                      記録
+                    </button>
+                  </div>
+                </form>
+
+                <div className="space-y-2.5">
+                  {ADHOC_TEMPLATES.map((cat, idx) => (
+                    <div key={idx} className="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-3">
+                      <h4 className="text-[11px] font-bold text-amber-300/90 mb-2">{cat.category}</h4>
+                      <div className="flex flex-wrap gap-1.5">
+                        {cat.items.map((item, iIdx) => (
+                          <button
+                            key={iIdx}
+                            onClick={() => addAdhocLog(item.name, item.emoji, item.exp)}
+                            className="px-2.5 py-1.5 bg-slate-900/80 hover:bg-slate-700 active:scale-95 border border-slate-700/80 rounded-xl text-xs text-slate-200 flex items-center gap-1.5"
+                          >
+                            <span>{item.emoji}</span>
+                            <span>{item.name}</span>
+                            <span className="text-[10px] text-amber-400 font-bold">+{item.exp}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-200">本日の突発ログ一覧</span>
+                    <span className="text-[10px] text-slate-400">計 {(adhocLogs || []).length} 件</span>
+                  </div>
+                  {(adhocLogs || []).length === 0 ? (
+                    <p className="text-xs text-slate-500 py-3 text-center">まだ突発ログはありません。</p>
+                  ) : (
+                    <div className="divide-y divide-slate-700/50 max-h-48 overflow-y-auto">
+                      {adhocLogs.map(l => (
+                        <div key={l.id} className="py-2 flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span>{l.emoji}</span>
+                            <span className="text-slate-200">{l.name}</span>
+                            <span className="text-[10px] text-slate-500 font-mono">({l.timestamp})</span>
+                          </div>
+                          <span className="text-[10px] font-bold text-amber-400">+{l.exp} EXP</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* Footer Bottom Bar with 24:00 Countdown */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+10px)]">
+            <div className="max-w-xl mx-auto flex flex-col gap-1.5">
+              <div className="flex items-center justify-between text-[11px] text-slate-400 px-1">
+                <span className="flex items-center gap-1 text-amber-300 font-medium">
+                  <span>🌙 24:00 自動確定まで:</span>
+                  <strong className="font-mono text-white">{timeUntilMidnight}</strong>
+                </span>
+                <span className="text-[10px] text-emerald-400 font-mono">{saveStatus}</span>
+              </div>
+              <button
+                onClick={() => setShowReportModal(true)}
+                className="w-full py-2.5 px-4 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm rounded-2xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 active:scale-[0.98]"
+              >
+                <Icon name="sparkles" className="w-4 h-4 text-slate-950" fill="currentColor" />
+                <span>本日の確定報告文を確認・コピーする</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Report Modal */}
+          {showReportModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-5 shadow-2xl flex flex-col max-h-[88vh]">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
+                    <Icon name="sparkles" className="w-4 h-4" />
+                    <span>自己肯定感＆実生活配当 確定報告書</span>
+                  </div>
+                  <button onClick={() => setShowReportModal(false)} className="p-1 rounded-xl bg-slate-800 text-slate-400">
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="mt-3 flex-1 overflow-y-auto bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-xs text-slate-200 whitespace-pre-wrap leading-relaxed">
+                  {generateReportForDate(getTodayString())}
+                </div>
+                <div className="mt-3 pt-2 border-t border-slate-800 flex items-center gap-2">
+                  <button
+                    onClick={() => copyToClipboard(generateReportForDate(getTodayString()))}
+                    className="flex-1 py-2.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold text-xs rounded-xl flex items-center justify-center gap-2 active:scale-95"
+                  >
+                    <Icon name="copy" className="w-4 h-4" />
+                    <span>{copyFeedback ? 'コピー完了！' : '全文をコピーする'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* History Modal (TOP3 & Archive) */}
+          {showHistoryModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-5 shadow-2xl flex flex-col max-h-[88vh]">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-2 text-amber-300 font-bold text-sm">
+                    <Icon name="book-open" className="w-4 h-4" />
+                    <span>過去実績＆報告文アーカイブ</span>
+                  </div>
+                  <button onClick={() => setShowHistoryModal(false)} className="p-1 rounded-xl bg-slate-800 text-slate-400">
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="mt-3 flex-1 overflow-y-auto space-y-4 pr-1">
+                  {/* TOP3 */}
+                  <div className="bg-gradient-to-r from-amber-950/40 to-orange-950/40 border border-amber-500/30 rounded-2xl p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                        <Icon name="trophy" className="w-3.5 h-3.5 text-amber-400" />
+                        <span>歴代ベストデイ TOP 3</span>
+                      </h4>
+                      <span className="text-[11px] font-bold text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-500/30">
+                        本日: +{todayEarnedExp} EXP
+                      </span>
+                    </div>
+
+                    <div className="mb-2.5 p-2 bg-slate-900/90 rounded-xl border border-amber-500/30 text-xs font-bold text-amber-200 flex items-center gap-1.5">
+                      <span>🎯</span>
+                      <span>現在の目標：<strong>{rankingTargetInfo.text}</strong></span>
+                    </div>
+
+                    {(!savedReports || savedReports.length === 0) ? (
+                      <p className="text-[11px] text-slate-400 py-1">24時の自動確定を迎えると、ここに歴代最高記録が自動集計されます。</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {[...savedReports].sort((a, b) => (Number(b.totalExpEarned) || 0) - (Number(a.totalExpEarned) || 0)).slice(0, 3).map((rep, idx) => (
+                          <div
+                            key={idx}
+                            onClick={() => setViewingReport(rep)}
+                            className="bg-slate-900/80 hover:bg-slate-900/95 p-2.5 rounded-xl border border-slate-700 hover:border-amber-500/50 flex items-center justify-between cursor-pointer transition-all active:scale-[0.99] group shadow-sm"
+                            title="タップして報告文を閲覧"
+                          >
+                            <div>
+                              <div className="text-xs font-bold text-slate-200 flex items-center gap-1">
+                                <span>{idx === 0 ? '🥇 1位' : idx === 1 ? '🥈 2位' : '🥉 3位'}: {rep.date}</span>
+                              </div>
+                              <div className="text-[10px] text-amber-300">
+                                獲得 {rep.totalExpEarned} EXP {rep.completedCount ? `（達成 ${rep.completedCount} 回）` : ''}
+                              </div>
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewingReport(rep);
+                              }}
+                              className="px-2.5 py-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 rounded-xl text-xs font-bold border border-amber-500/40 flex items-center gap-1 shadow-sm active:scale-95"
+                            >
+                              <Icon name="book-open" className="w-3.5 h-3.5 text-amber-400" />
+                              <span>閲覧</span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 直近1週間 */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                      <Icon name="calendar" className="w-3.5 h-3.5 text-sky-400" />
+                      <span>直近1週間の確定ログ</span>
+                    </h4>
+                    {(!savedReports || savedReports.length === 0) ? (
+                      <p className="text-[11px] text-slate-400 bg-slate-800/40 p-3 rounded-xl">記録がまだありません。</p>
+                    ) : (
+                      savedReports.slice(0, 7).map((rep, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => setViewingReport(rep)}
+                          className="bg-slate-800/70 hover:bg-slate-800 border border-slate-700/70 hover:border-sky-500/40 p-3 rounded-2xl flex items-center justify-between cursor-pointer transition-all active:scale-[0.99] group shadow-sm"
+                          title="タップして報告文を閲覧"
+                        >
+                          <div>
+                            <div className="text-xs font-bold text-slate-200">{rep.date}</div>
+                            <div className="text-[11px] text-slate-400 mt-0.5">
+                              獲得 <strong className="text-amber-300 font-mono">+{rep.totalExpEarned}</strong> EXP
+                              {rep.completedCount ? <span className="ml-1 text-[10px] text-slate-500">（達成 {rep.completedCount}回）</span> : null}
+                            </div>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewingReport(rep);
+                            }}
+                            className="px-3 py-1.5 bg-sky-950/80 hover:bg-sky-900 border border-sky-400/50 text-sky-300 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95"
+                          >
+                            <Icon name="book-open" className="w-3.5 h-3.5 text-sky-400" />
+                            <span>報告文を読む</span>
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 過去報告文の全文閲覧モーダル */}
+          {viewingReport && (
+            <div className="fixed inset-0 z-[65] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+              <div className="bg-slate-900 border border-amber-500/40 w-full max-w-lg rounded-3xl p-5 shadow-2xl flex flex-col max-h-[90vh]">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-2 text-amber-300 font-bold text-sm min-w-0">
+                    <Icon name="book-open" className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span className="truncate">【{viewingReport.date}】の確定報告書</span>
+                  </div>
+                  <button
+                    onClick={() => setViewingReport(null)}
+                    className="p-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors shrink-0"
+                    title="閉じる"
+                  >
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between bg-slate-800/60 px-3.5 py-2 rounded-xl border border-slate-700/60 text-xs">
+                  <span className="text-slate-400">実績サマリー</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-300 font-bold font-mono">+{viewingReport.totalExpEarned} EXP</span>
+                    {viewingReport.completedCount ? (
+                      <span className="text-slate-400 text-[11px]">（計 {viewingReport.completedCount} 回達成）</span>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="mt-3 flex-1 overflow-y-auto bg-slate-950/90 border border-slate-800 rounded-2xl p-4 font-mono text-xs text-slate-200 whitespace-pre-wrap leading-relaxed select-text shadow-inner">
+                  {viewingReport.reportText}
+                </div>
+
+                <div className="mt-3 pt-2 border-t border-slate-800 flex items-center gap-2">
+                  <button
+                    onClick={() => copyToClipboard(viewingReport.reportText)}
+                    className="flex-1 py-2.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold text-xs rounded-xl flex items-center justify-center gap-2 active:scale-95 shadow-md transition-all"
+                  >
+                    <Icon name="copy" className="w-4 h-4" />
+                    <span>{copyFeedback ? 'コピー完了！' : 'この報告文をコピーする'}</span>
+                  </button>
+                  <button
+                    onClick={() => setViewingReport(null)}
+                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl active:scale-95 transition-colors"
+                  >
+                    閉じる
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 習慣編集モーダル */}
+          {editingTask && (
+            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 shadow-2xl">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h3 className="text-sm font-bold text-slate-100 flex items-center gap-1.5">
+                    <Icon name="edit" className="w-4 h-4 text-amber-400" />
+                    <span>習慣タスクの編集</span>
+                  </h3>
+                  <button onClick={() => setEditingTask(null)} className="p-1 rounded-xl bg-slate-800 text-slate-400">
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-3 mt-3 text-xs">
+                  <div>
+                    <label className="block text-slate-400 mb-1">絵文字アイコン</label>
+                    <input
+                      type="text"
+                      value={editingTask.emoji || '✨'}
+                      onChange={(e) => setEditingTask({ ...editingTask, emoji: e.target.value })}
+                      className="w-16 text-center text-xl bg-slate-800 border border-slate-700 rounded-xl p-2 text-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 mb-1">タスク名</label>
+                    <input
+                      type="text"
+                      value={editingTask.name || ''}
+                      onChange={(e) => setEditingTask({ ...editingTask, name: e.target.value })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1 flex items-center gap-1">
+                      <Icon name="link" className="w-3.5 h-3.5 text-sky-400" />
+                      <span>参考リンクURL（任意・ワンタップで飛べるボタンを生成）</span>
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://... （YouTube、Notion、管理シート等）"
+                      value={editingTask.linkUrl || ''}
+                      onChange={(e) => setEditingTask({ ...editingTask, linkUrl: e.target.value })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100 text-xs focus:border-sky-400"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-slate-400 mb-1">基本EXP</label>
+                      <input
+                        type="number"
+                        value={editingTask.exp ?? 10}
+                        onChange={(e) => setEditingTask({ ...editingTask, exp: Number(e.target.value) })}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-400 mb-1">ボーナス追加EXP</label>
+                      <input
+                        type="number"
+                        value={editingTask.bonusExp ?? 5}
+                        onChange={(e) => setEditingTask({ ...editingTask, bonusExp: Number(e.target.value) })}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1">ボーナス達成条件名</label>
+                    <input
+                      type="text"
+                      placeholder="例：食後すぐ、丁寧に仕上げた"
+                      value={editingTask.bonusText || ''}
+                      onChange={(e) => setEditingTask({ ...editingTask, bonusText: e.target.value })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                  <button
+                    onClick={() => {
+                      setHabits(prev => prev.filter(h => h.id !== editingTask.id));
+                      setEditingTask(null);
+                    }}
+                    className="px-3 py-2 bg-rose-500/20 text-rose-300 rounded-xl text-xs font-bold"
+                  >
+                    削除
+                  </button>
+                  <button
+                    onClick={() => {
+                      setHabits(prev => {
+                        const exists = prev.some(h => h.id === editingTask.id);
+                        if (exists) return prev.map(h => (h.id === editingTask.id ? editingTask : h));
+                        return [editingTask, ...prev];
+                      });
+                      setEditingTask(null);
+                    }}
+                    className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold rounded-xl text-xs"
+                  >
+                    保存する
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 定期メンテ新規登録・編集モーダル */}
+          {editingMaintenance && (
+            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+              <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 shadow-2xl flex flex-col max-h-[92vh] overflow-y-auto">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h3 className="text-sm font-bold text-slate-100 flex items-center gap-1.5">
+                    <Icon name={editingMaintenance.id ? "edit" : "plus"} className="w-4 h-4 text-amber-400" />
+                    <span>{editingMaintenance.id ? '定期メンテ／臨時タスクの編集' : '定期メンテ／臨時タスクの新規登録'}</span>
+                  </h3>
+                  <button
+                    onClick={() => setEditingMaintenance(null)}
+                    className="p-1 rounded-xl bg-slate-800 text-slate-400 hover:text-slate-200"
+                  >
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSaveMaintenance(editingMaintenance);
+                  }}
+                  className="space-y-3 mt-3 text-xs"
+                >
+                  <div>
+                    <label className="block text-slate-400 mb-1">管理タイプ</label>
+                    <select
+                      value={editingMaintenance.type || 'cycle'}
+                      onChange={(e) => setEditingMaintenance({ ...editingMaintenance, type: e.target.value })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                    >
+                      <option value="cycle">サイクル型（X日ごと相対管理）</option>
+                      <option value="monthly">毎月固定日型（毎月1日など）</option>
+                      <option value="single">1回きり臨時タスク（単発ミッション）</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1">タスク名</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="例：エアコンフィルター清掃、粗大ゴミ申込"
+                      value={editingMaintenance.name || ''}
+                      onChange={(e) => setEditingMaintenance({ ...editingMaintenance, name: e.target.value })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-slate-400 mb-1">絵文字アイコン</label>
+                      <input
+                        type="text"
+                        value={editingMaintenance.emoji || '🧹'}
+                        onChange={(e) => setEditingMaintenance({ ...editingMaintenance, emoji: e.target.value })}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100 text-center text-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-400 mb-1">獲得EXP</label>
+                      <input
+                        type="number"
+                        value={editingMaintenance.exp ?? 30}
+                        onChange={(e) => setEditingMaintenance({ ...editingMaintenance, exp: Number(e.target.value) })}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                      />
+                    </div>
+                  </div>
+
+                  {editingMaintenance.type === 'cycle' && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-slate-400 mb-1">サイクル目安 (日)</label>
+                        <input
+                          type="number"
+                          min={1}
+                          value={editingMaintenance.cycleDays ?? 14}
+                          onChange={(e) => setEditingMaintenance({ ...editingMaintenance, cycleDays: Number(e.target.value) })}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 mb-1">前回実施日</label>
+                        <input
+                          type="date"
+                          value={editingMaintenance.lastDoneDate || getTodayString()}
+                          onChange={(e) => setEditingMaintenance({ ...editingMaintenance, lastDoneDate: e.target.value })}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {editingMaintenance.type === 'monthly' && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-slate-400 mb-1">毎月指定日 (1〜31日)</label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={31}
+                          value={editingMaintenance.fixedDay ?? 1}
+                          onChange={(e) => setEditingMaintenance({ ...editingMaintenance, fixedDay: Number(e.target.value) })}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 mb-1">前回実施日</label>
+                        <input
+                          type="date"
+                          value={editingMaintenance.lastDoneDate || getTodayString()}
+                          onChange={(e) => setEditingMaintenance({ ...editingMaintenance, lastDoneDate: e.target.value })}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {editingMaintenance.type === 'single' && (
+                    <div className="space-y-2">
+                      <div>
+                        <label className="block text-slate-400 mb-1">締切期日</label>
+                        <input
+                          type="date"
+                          value={editingMaintenance.dueDate || ''}
+                          onChange={(e) => setEditingMaintenance({ ...editingMaintenance, dueDate: e.target.value })}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 pt-1">
+                        <input
+                          type="checkbox"
+                          id="edit-maint-completed"
+                          checked={Boolean(editingMaintenance.completed)}
+                          onChange={(e) => setEditingMaintenance({ ...editingMaintenance, completed: e.target.checked })}
+                          className="w-4 h-4 rounded bg-slate-800 border-slate-700 text-amber-500 focus:ring-0"
+                        />
+                        <label htmlFor="edit-maint-completed" className="text-slate-300">
+                          完了状態にする
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {editingMaintenance.id && (
+                    <div>
+                      <label className="block text-slate-400 mb-1">通算実施回数</label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={editingMaintenance.totalCount ?? 0}
+                        onChange={(e) => setEditingMaintenance({ ...editingMaintenance, totalCount: Number(e.target.value) })}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-100"
+                      />
+                    </div>
+                  )}
+
+                  <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
+                    {editingMaintenance.id ? (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteMaintenance(editingMaintenance.id)}
+                        className="px-3 py-2 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 rounded-xl text-xs font-bold"
+                      >
+                        削除
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setEditingMaintenance(null)}
+                        className="px-4 py-2 bg-slate-800 text-slate-400 hover:text-slate-200 rounded-xl"
+                      >
+                        キャンセル
+                      </button>
+                    )}
+                    <button
+                      type="submit"
+                      className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold rounded-xl text-xs active:scale-95 transition-all"
+                    >
+                      {editingMaintenance.id ? '変更を保存する' : '登録する'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* 金字塔モーダル */}
+          {milestoneModalData && (
+            <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+              <div className="bg-slate-900 border-2 border-amber-400/80 w-full max-w-md rounded-3xl p-5 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto">
+                <div className="text-center pt-2">
+                  <div className="text-3xl mb-1">{milestoneModalData.emoji}</div>
+                  <div className="text-xs font-black text-amber-400 uppercase tracking-widest">
+                    🎉 金字塔達成！通算 {milestoneModalData.totalCount} 回突破 🎉
+                  </div>
+                  <h3 className="text-lg font-black text-white mt-1">
+                    「{milestoneModalData.taskName}」の達人
+                  </h3>
+                </div>
+
+                <div className="mt-3 bg-slate-800/80 border border-slate-700 rounded-2xl p-3.5">
+                  <div className="text-xs font-bold text-amber-300 mb-1">
+                    {milestoneModalData.dividendTitle}
+                  </div>
+                  <p className="text-xs text-slate-200 leading-relaxed font-medium">
+                    {milestoneModalData.dividendDesc}
+                  </p>
+                </div>
+
+                <div className="mt-3 bg-sky-950/40 border border-sky-500/30 rounded-2xl p-3.5">
+                  <div className="text-xs font-bold text-sky-300 mb-1 flex items-center gap-1.5">
+                    <span>💡 タスク特化・科学うんちく</span>
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    {milestoneModalData.trivia}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setMilestoneModalData(null)}
+                  className="mt-4 w-full py-2.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs rounded-xl"
+                >
+                  誇らしく受け取る！
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Settings Modal */}
+          {showSettingsModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 shadow-2xl">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h3 className="text-sm font-bold text-slate-100 flex items-center gap-1.5">
+                    <Icon name="settings" className="w-4 h-4 text-amber-400" />
+                    <span>データ保護・アプリ設定</span>
+                  </h3>
+                  <button onClick={() => setShowSettingsModal(false)} className="p-1 rounded-xl bg-slate-800 text-slate-400">
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-3 mt-4 text-xs">
+                  <button
+                    onClick={() => setShowInstallGuideModal(true)}
+                    className="w-full py-2.5 px-3 bg-gradient-to-r from-amber-500/20 to-indigo-600/30 border border-amber-400/40 rounded-xl text-amber-200 font-bold text-xs"
+                  >
+                    📱 iPhoneで完全専用アプリ化する手順（1分）
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const data = {
+                        schemaVersion: CURRENT_SCHEMA_VERSION,
+                        totalExp,
+                        habits,
+                        maintenance,
+                        adhocLogs,
+                        completedQuests,
+                        savedReports,
+                        lastActiveDate
+                      };
+                      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `habit-backup-${getTodayString()}.json`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                    className="w-full py-2.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl font-bold flex items-center justify-center gap-2 text-slate-100"
+                  >
+                    <Icon name="download" className="w-4 h-4 text-amber-400" />
+                    <span>JSONバックアップをダウンロード</span>
+                  </button>
+
+                  {/* 堅牢サニタイザー付き復元インプット */}
+                  <label className="w-full py-2.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer text-slate-100">
+                    <Icon name="upload" className="w-4 h-4 text-sky-400" />
+                    <span>JSONバックアップから安全復元</span>
+                    <input
+                      type="file"
+                      accept=".json"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const r = new FileReader();
+                        r.onload = (evt) => {
+                          try {
+                            const rawParsed = JSON.parse(evt.target.result);
+                            const safe = sanitizeAppState(rawParsed);
+
+                            setHabits(safe.habits);
+                            setTotalExp(safe.totalExp);
+                            setMaintenance(safe.maintenance);
+                            setSavedReports(safe.savedReports);
+                            setAdhocLogs(safe.adhocLogs);
+                            setCompletedQuests(safe.completedQuests);
+                            setLastActiveDate(safe.lastActiveDate);
+
+                            setShowSettingsModal(false);
+                            setRecoveryToast('🎉 データを正常に引き継ぎ、安全に復元しました！');
+                            setTimeout(() => setRecoveryToast(null), 3500);
+                          } catch (err) {
+                            console.error('File parse error:', err);
+                            setRecoveryToast('⚠️ ファイルの形式が不正です。正しいJSONファイルを選択してください。');
+                          }
+                        };
+                        r.readAsText(file);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+
+                  <div className="pt-2 border-t border-slate-800">
+                    <button
+                      onClick={() => {
+                        try {
+                          localStorage.removeItem(STORAGE_KEY);
+                          setHabits(INITIAL_HABITS);
+                          setMaintenance(INITIAL_MAINTENANCE);
+                          setSavedReports(INITIAL_SAVED_REPORTS);
+                          setTotalExp(140);
+                          setAdhocLogs([]);
+                          setShowSettingsModal(false);
+                          setRecoveryToast('初期プリセットに安全リセットしました。');
+                          setTimeout(() => setRecoveryToast(null), 3000);
+                        } catch (err) {}
+                      }}
+                      className="w-full py-2 text-rose-400 hover:text-rose-300 text-[11px] text-center"
+                    >
+                      初期状態にクリーンリセット
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* iPhone App Guide Modal */}
+          {showInstallGuideModal && (
+            <div className="fixed inset-0 z-[60] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-amber-500/40 w-full max-w-md rounded-3xl p-5 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <div className="text-sm font-bold text-amber-300">iPhone専用アプリ化（約1分）</div>
+                  <button onClick={() => setShowInstallGuideModal(false)} className="p-1 rounded-xl bg-slate-800 text-slate-400">
+                    <Icon name="close" className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="mt-3 space-y-2.5 text-xs text-slate-300 leading-relaxed">
+                  <div className="p-2.5 bg-slate-800/80 rounded-xl border border-slate-700">
+                    <strong className="text-amber-300">1. ファイルを保存:</strong><br />
+                    画面右上のメニューからダウンロードを押し、この `index.html` を保存します。
+                  </div>
+                  <div className="p-2.5 bg-slate-800/80 rounded-xl border border-slate-700">
+                    <strong className="text-amber-300">2. tiiny.host を開く:</strong><br />
+                    Safariで無料ホスティング <a href="https://tiiny.host" target="_blank" className="text-amber-400 underline">tiiny.host</a> を開きます。
+                  </div>
+                  <div className="p-2.5 bg-slate-800/80 rounded-xl border border-slate-700">
+                    <strong className="text-amber-300">3. アップロード:</strong><br />
+                    index.html を選択して Publish を押すと数秒で専用URLが発行されます。
+                  </div>
+                  <div className="p-2.5 bg-slate-800/80 rounded-xl border border-slate-700">
+                    <strong className="text-amber-300">4. ホーム画面に追加:</strong><br />
+                    Safariの共有ボタン（⎋）から「ホーム画面に追加」を押せば、全画面の専用アプリが完成します。
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    );
+  </script>
+</body>
+</html>
